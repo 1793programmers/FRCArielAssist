@@ -5,7 +5,6 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
-import java.lang.Exception;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,13 +19,18 @@ public class GrabComponent implements RobotComponent {
 
 //private CANJaguar grabMotor;
 //private Joystick armStick;
-    private final Joystick armStick = new Joystick(2);
+    private Joystick jStick;
     private int releaseButton = 2;
     private int grabButton = 3;
-    private final Victor grabMotor = new Victor(1);
+    private Victor vMotor;
+    
+    public GrabComponent(Joystick j, Victor v){
+        jStick = j;
+        vMotor = v;
+    }
 
-    public void robotInit() {
-        grabMotor.set(armStick.getY());
+    public void Initialize() {
+        vMotor.set(jStick.getY());
     }
 
     public void teleopInit() {
@@ -34,23 +38,23 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void teleopPeriodic() {
-        boolean grab = armStick.getRawButton(grabButton);
-        boolean release = armStick.getRawButton(releaseButton);
+        boolean grab = jStick.getRawButton(grabButton);
+        boolean release = jStick.getRawButton(releaseButton);
         if(grab){
-            grabMotor.set(1.0);
+            vMotor.set(1.0);
         }else if(release){
-            grabMotor.set(-1.0);
+            vMotor.set(-1.0);
         }else{
-            grabMotor.set(0.0);
+            vMotor.set(0.0);
         } 
     }
 
     public void autonomousInit() {
-        Victor grabMotor = new Victor(1);
+        
     }
 
     public void autonomousPeriodic() {
-        grabMotor.set(armStick.getY());
+        vMotor.set(jStick.getY());
     }
 
     public void disabledInit() {
@@ -62,7 +66,7 @@ public class GrabComponent implements RobotComponent {
     // here. Call these from Commands.
 
     public void initialize() {
-       // throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
