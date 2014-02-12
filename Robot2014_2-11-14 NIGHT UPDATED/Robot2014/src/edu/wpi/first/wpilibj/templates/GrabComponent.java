@@ -26,9 +26,7 @@ public class GrabComponent implements RobotComponent {
         releaseButton = jb2;
         vMotor = v;
     }
-
-   
-    }
+    
     
     public void autonomousInit() {
         
