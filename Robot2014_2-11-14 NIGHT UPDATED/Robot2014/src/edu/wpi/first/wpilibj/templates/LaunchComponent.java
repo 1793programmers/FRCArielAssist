@@ -30,8 +30,6 @@ public class LaunchComponent implements RobotComponent {
         retractButt = jb2;
         lVictor = v;
     }
-    
-  
 
     public void autonomousPeriodic() {
     }
