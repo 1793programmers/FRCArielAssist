@@ -10,7 +10,6 @@ package edu.wpi.first.wpilibj.templates;
  */
 public interface RobotComponent {
 
-    public void initialize();
     public void autonomousInit();
     public void autonomousPeriodic();
     //public void autonomousContinuous();
