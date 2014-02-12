@@ -27,9 +27,6 @@ public class GrabComponent implements RobotComponent {
         vMotor = v;
     }
 
-   
-    }
-    
     public void autonomousInit() {
         
     }
