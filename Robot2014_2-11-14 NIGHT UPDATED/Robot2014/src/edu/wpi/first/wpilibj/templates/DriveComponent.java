@@ -41,6 +41,15 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
+        fljag.setX(1);
+        rljag.setX(1);
+        frjag.setX(1);
+        rrjag.setX(1);
+        Timer.delay(2);
+        fljag.setX(0);
+        rljag.setX(0);
+        frjag.setX(0);
+        rrjag.setX(0);
     }
 
     public void teleopPeriodic() {
