@@ -19,7 +19,7 @@ public class CameraComponent implements RobotComponent {
         
     AxisCamera camera; //Camera
     private int imageWidth;//width of image
-    DriverStation dS = DriverStation.getInstance();
+    //DriverStation dS = DriverStation.getInstance();
     ColorImage image;
         
     public void initialize() {
