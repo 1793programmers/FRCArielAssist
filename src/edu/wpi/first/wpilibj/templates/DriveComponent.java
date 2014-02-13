@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  *
  * @author milo
  */
-
+//
 public class DriveComponent implements RobotComponent {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
@@ -39,14 +39,21 @@ public class DriveComponent implements RobotComponent {
         rrjag = jag5;
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
     }
-    public void initialize() {
-        
-        
-        // Set the default command for a subsystem here.
-        //setDefaultCommand(new MySpecialCommand());
-    }
 
     public void autonomousPeriodic() {
+        try {
+        fljag.setX(1);
+        rljag.setX(1);
+        frjag.setX(1);
+        rrjag.setX(1);
+        Timer.delay(2);
+        fljag.setX(0);
+        rljag.setX(0);
+        frjag.setX(0);
+        rrjag.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void teleopPeriodic() {
