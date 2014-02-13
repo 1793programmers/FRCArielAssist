@@ -6,7 +6,7 @@ package edu.wpi.first.wpilibj.templates;
 
 /**
  *
- * @author MEOW MEOW
+ * @author Naomi
  */
 public interface RobotComponent {
 
