@@ -22,7 +22,7 @@ public class CameraComponent implements RobotComponent {
     //DriverStation dS = DriverStation.getInstance();
     ColorImage image;
         
-    public void initialize() {
+    public CameraComponent() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
         camera = AxisCamera.getInstance("192.168.0.90");
