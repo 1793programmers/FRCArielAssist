@@ -26,7 +26,7 @@ public class RobotRunner extends IterativeRobot {
 
     //Gunner is Awesome!
     //DRIVE FIELDS BELOW!
-    private static final Joystick DRIVE_JOYSTICK = new Joystick(1);
+    private static Joystick DRIVE_JOYSTICK;
     private CANJaguar fljag;  //Front Left Wheel Jag
     private CANJaguar rljag; //Rear Left Wheel Jag
     private CANJaguar frjag; //Front Right Wheel Jag
@@ -60,6 +60,7 @@ public class RobotRunner extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
+        ARM_STICK = new Joystick(1);
         //Jag instantiations below
         try {
             fljag = new CANJaguar(2); //Front Left Wheel Jag
