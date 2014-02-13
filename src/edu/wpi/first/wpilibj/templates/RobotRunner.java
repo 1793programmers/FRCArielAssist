@@ -35,17 +35,17 @@ public class RobotRunner extends IterativeRobot {
     ;
     //ARM FIELDS BELOW!
     private static Joystick ARM_JOYSTICK;
-    private JoystickButton launchButt = new JoystickButton(ARM_JOYSTICK, 3);
-    private JoystickButton retractButt = new JoystickButton(ARM_JOYSTICK, 2);
-    private JoystickButton grabButt = new JoystickButton(ARM_JOYSTICK, 4); //4 on left side of joy, 5 on right side. in <-- out -->
-    private JoystickButton releaseButt = new JoystickButton(ARM_JOYSTICK, 5);
-    private Victor armVictor = new Victor(1);
-    private Victor grabVictor = new Victor(2);
-    private Victor launchVic = new Victor(3);
+    private JoystickButton launchButton;
+    private JoystickButton retractButton;
+    private JoystickButton grabButton; //4 on left side of joy, 5 on right side. in <-- out -->
+    private JoystickButton releaseButton;
+    private Victor armVictor;
+    private Victor grabVictor;
+    private Victor launchVictor;
     //SWITCHES BELOW!
-    private DigitalInput gFLimitSwitch = new DigitalInput(1);
-    private DigitalInput gBLimitSwitch = new DigitalInput(2);
-    private DigitalInput launchLimitSwitch = new DigitalInput(3);
+    private DigitalInput grabFrontLimitSwitch;
+    private DigitalInput grabBackLimitSwitch;
+    private DigitalInput launchLimitSwitch;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
     private DriveComponent driveComp;
     private GrabComponent grabComp;
@@ -62,6 +62,18 @@ public class RobotRunner extends IterativeRobot {
     public void robotInit() {
         DRIVE_STICK = new Joystick(1);
         ARM_STICK = new Joystick(2)
+        launchButton = new JoystickButton(ARM_JOYSTICK, 3);
+        retractButton = new JoystickButton(ARM_JOYSTICK, 2);
+        grabButton = new JoystickButton(ARM_JOYSTICK, 4);
+        releaseButton = new JoystickButton(ARM_JOYSTICK, 5);
+        armVictor = new Victor(1);
+        grabVictor = new Victor(2);
+        launchVictor = new Victor(3);
+        grabFrontLimitSwitch = new DigitalInput(1);
+        grabBackLimitSwitch  = new DigitalInput(2);
+        launchLimitSwitch = new DigitalInput(3);
+        
+        
         //Jag instantiations below
         try {
             fljag = new CANJaguar(2); //Front Left Wheel Jag
