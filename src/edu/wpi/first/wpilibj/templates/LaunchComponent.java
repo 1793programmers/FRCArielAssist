@@ -30,14 +30,6 @@ public class LaunchComponent implements RobotComponent {
         retractButt = jb2;
         lVictor = v;
     }
-    
-    public void initialize() {
-        // Set the default command for a subsystem here.
-        //setDefaultCommand(new MySpecialCommand());
-        lVictor = new Victor(2);
-        launchStick = new Joystick(2);
-        launchButt = new JoystickButton(launchStick, 1);
-    }
 
     public void autonomousPeriodic() {
     }
