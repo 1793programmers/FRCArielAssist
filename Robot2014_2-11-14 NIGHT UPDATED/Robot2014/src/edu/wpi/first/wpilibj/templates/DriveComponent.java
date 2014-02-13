@@ -41,6 +41,7 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
+        try {
         fljag.setX(1);
         rljag.setX(1);
         frjag.setX(1);
@@ -50,6 +51,9 @@ public class DriveComponent implements RobotComponent {
         rljag.setX(0);
         frjag.setX(0);
         rrjag.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void teleopPeriodic() {
