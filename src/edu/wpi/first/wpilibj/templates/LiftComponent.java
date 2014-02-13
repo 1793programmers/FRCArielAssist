@@ -28,14 +28,7 @@ public class LiftComponent implements RobotComponent {
         bLimitSwitch = s2;
     }
     
-    public void initialize() {
-        System.out.println("Reached init");    
-        armStick = new Joystick(2);    
-        armVictor = new Victor(1);
-        fLimitSwitch = new DigitalInput(1);
-        bLimitSwitch = new DigitalInput(2);  //To change body of generated methods, choose Tools | Templates.
-    }
-    
+   
     
     public void autonomousInit() {
         armVictor.set(-1.0); //move to shooting position
