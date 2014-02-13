@@ -27,10 +27,6 @@ public class GrabComponent implements RobotComponent {
         vMotor = v;
     }
 
-    public void initialize() {
-        vMotor.set(jStick.getY());
-    }
-    
     public void autonomousInit() {
         
     }
