@@ -31,8 +31,8 @@ public class RobotRunner extends IterativeRobot {
     private CANJaguar rljag; //Rear Left Wheel Jag
     private CANJaguar frjag; //Front Right Wheel Jag
     private CANJaguar rrjag; //Rear Right Wheel Jag
-    private ADXL345_I2C accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
-    ;
+    private ADXL345_I2C accel;
+    
     //ARM FIELDS BELOW!
     private static Joystick ARM_JOYSTICK;
     private JoystickButton launchButton;
@@ -61,7 +61,7 @@ public class RobotRunner extends IterativeRobot {
      */
     public void robotInit() {
         DRIVE_STICK = new Joystick(1);
-        ARM_STICK = new Joystick(2)
+        ARM_STICK = new Joystick(2);
         launchButton = new JoystickButton(ARM_JOYSTICK, 3);
         retractButton = new JoystickButton(ARM_JOYSTICK, 2);
         grabButton = new JoystickButton(ARM_JOYSTICK, 4);
