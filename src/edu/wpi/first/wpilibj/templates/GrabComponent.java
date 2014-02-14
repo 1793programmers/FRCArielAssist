@@ -46,7 +46,7 @@ public class GrabComponent implements RobotComponent {
         boolean isGrabberOpen = grabberSwitch.get();
         boolean isReleasePressed = releaseButton.get();
         double grabSignal = jStick.getY();
-        if (LaunchComponent.getLaunching()){
+        if (RobotRunner.getLaunchComponent().getLaunching()){
             vMotor.set(-1.0);
         }
         else {
