@@ -28,7 +28,6 @@ public class LiftComponent implements RobotComponent {
         bLimitSwitch = s2;
     }
     
-   
     
     public void autonomousInit() {
         armVictor.set(-1.0); //move to shooting position
