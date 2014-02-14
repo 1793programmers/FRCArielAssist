@@ -23,7 +23,9 @@ public class LaunchComponent implements RobotComponent {
     private Joystick launchStick;
     private JoystickButton launchButton;
     private JoystickButton retractButton;
-    
+    private Timer timer;
+    boolean launching = true;
+   
     public LaunchComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v){
         launchStick = j;
         launchButton = jb1;
@@ -32,14 +34,14 @@ public class LaunchComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
+        
     }
 
     public void teleopPeriodic() {
         
-        if (launchButton.get() == true){
+        /* if (launchButton.get() == true){
            lVictor.set(1);
-           Timer.delay(1);
-          // lVictor.set(-1);
+           // lVictor.set(-1);
         }
         else if (retractButton.get() == true){
             lVictor.set(-1);
@@ -48,8 +50,20 @@ public class LaunchComponent implements RobotComponent {
         else {
            lVictor.set(0);
         }
-        
-    }
+        */
+        if(launchButton.get() == true){
+            if(launching){
+               timer.reset();
+               timer.start();
+               launching = true;
+            }
+           } else{
+            if(timer.get() > (.5))
+                launching = false;
+        }
+    timer.stop();
+    } 
+    
 
     public void testPeriodic() {
     }
@@ -66,7 +80,11 @@ public class LaunchComponent implements RobotComponent {
     }
 
     public void teleopInit() {
+        timer = new Timer();
         
     }
 
+public boolean getLaunching(){
+    return launching;
+}
 }
