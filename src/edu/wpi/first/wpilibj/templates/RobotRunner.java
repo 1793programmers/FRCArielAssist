@@ -46,14 +46,14 @@ public class RobotRunner extends IterativeRobot {
     private DigitalInput gBLimitSwitch;
     private DigitalInput launchLimitSwitch;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
-//    private DriveComponent driveComp;
+    private DriveComponent driveComp;
     private GrabComponent grabComp;
-    private LaunchComponent launchComp;
+    private static LaunchComponent launchComp;
     private LiftComponent liftComp;
-//    private CameraComponent cameraComp;
+    private CameraComponent cameraComp;
     private RobotComponent[] components = new RobotComponent[5];
     
-    //private TestComponent testComp;
+    private TestComponent testComp;
     //Put all components above in an array to traverse later
 
     /**
@@ -86,11 +86,11 @@ public class RobotRunner extends IterativeRobot {
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-//        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
+          driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
           grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
           launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor);
           liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
-//        cameraComp = new CameraComponent();
+          cameraComp = new CameraComponent();
           //testComp = new TestComponent(armJoystick, launchButton, retractButton, launchVictor);
  //         components[0] = testComp;
 
@@ -141,11 +141,17 @@ public class RobotRunner extends IterativeRobot {
         launchComp.teleopPeriodic();
         grabComp.teleopPeriodic();
         liftComp.teleopPeriodic();
- //         components[0].teleopPeriodic();
+        driveComp.teleopPeriodic();
+        cameraComp.teleopPeriodic();
+        //components[0].teleopPeriodic();
 //        components[2].teleopPeriodic();
 //        components[3].teleopPeriodic();
 //        components[4].teleopPeriodic();
         
+    }
+    
+    public static LaunchComponent getLaunchComponent(){
+        return launchComp;
     }
     /**
      * This function is called periodically during test mode
