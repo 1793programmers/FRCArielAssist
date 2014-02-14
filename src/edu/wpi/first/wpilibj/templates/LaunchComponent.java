@@ -24,7 +24,7 @@ public class LaunchComponent implements RobotComponent {
     private JoystickButton launchButton;
     private JoystickButton retractButton;
     private Timer timer;
-    boolean launching = true;
+    boolean launching = false;
    
     public LaunchComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v){
         launchStick = j;
@@ -52,13 +52,13 @@ public class LaunchComponent implements RobotComponent {
         }
         */
         if(launchButton.get() == true){
-            if(launching){
+            if(!launching){
                timer.reset();
                timer.start();
                launching = true;
             }
            } else{
-            if(timer.get() > (.5))
+            if(timer.get() > (2000))
                 launching = false;
         }
     timer.stop();
