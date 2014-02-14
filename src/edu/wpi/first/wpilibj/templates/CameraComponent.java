@@ -25,6 +25,7 @@ public class CameraComponent implements RobotComponent {
     public CameraComponent() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
+        
         camera = AxisCamera.getInstance("192.168.0.90");
         camera.writeMaxFPS(5);
         camera.writeResolution(AxisCamera.ResolutionT.k160x120);
