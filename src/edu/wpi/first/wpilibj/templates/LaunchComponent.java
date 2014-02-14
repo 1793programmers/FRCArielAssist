@@ -21,13 +21,13 @@ public class LaunchComponent implements RobotComponent {
     // here. Call these from Commands.
     private Victor lVictor;
     private Joystick launchStick;
-    private JoystickButton launchButt;
-    private JoystickButton retractButt;
+    private JoystickButton launchButton;
+    private JoystickButton retractButton;
     
     public LaunchComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v){
         launchStick = j;
-        launchButt = jb1;
-        retractButt = jb2;
+        launchButton = jb1;
+        retractButton = jb2;
         lVictor = v;
     }
 
@@ -36,10 +36,14 @@ public class LaunchComponent implements RobotComponent {
 
     public void teleopPeriodic() {
         
-        if (launchButt.get() == true){
+        if (launchButton.get() == true){
            lVictor.set(1);
            Timer.delay(1);
-           lVictor.set(-1);
+          // lVictor.set(-1);
+        }
+        else if (retractButton.get() == true){
+            lVictor.set(-1);
+            Timer.delay(1);
         }
         else {
            lVictor.set(0);
