@@ -1,5 +1,5 @@
 package edu.wpi.first.wpilibj.templates;
-//Gunner is Awesome!
+
 import edu.wpi.first.wpilibj.ADXL345_I2C;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Joystick;
@@ -37,7 +37,7 @@ public class DriveComponent implements RobotComponent {
         rljag = jag3;
         frjag = jag4;
         rrjag = jag5;
-        accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
+        accel = a;
     }
 
     public void autonomousPeriodic() {
