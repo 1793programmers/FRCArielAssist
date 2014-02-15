@@ -41,6 +41,8 @@ public class RobotRunner extends IterativeRobot {
     private Victor liftVictor;
     private Victor grabVictor;
     private Victor launchVictor;
+    private Servo launchServo;
+    
     //SWITCHES BELOW!
     private DigitalInput gFLimitSwitch;
     private DigitalInput gBLimitSwitch;
@@ -75,6 +77,7 @@ public class RobotRunner extends IterativeRobot {
         gFLimitSwitch = new DigitalInput(1);
         gBLimitSwitch = new DigitalInput(2);
         launchLimitSwitch = new DigitalInput(3);
+        launchServo = new Servo(10); 
         
         try {
             fljag = new CANJaguar(2); //Front Left Wheel Jag
