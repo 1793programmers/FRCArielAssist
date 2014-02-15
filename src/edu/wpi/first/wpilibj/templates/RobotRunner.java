@@ -91,7 +91,7 @@ public class RobotRunner extends IterativeRobot {
         }
           driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
           grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
-          launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor);
+          launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchServo, launchLimitSwitch);
           liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
           cameraComp = new CameraComponent();
           //testComp = new TestComponent(armJoystick, launchButton, retractButton, launchVictor);
