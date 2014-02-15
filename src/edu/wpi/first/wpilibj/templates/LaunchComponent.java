@@ -47,7 +47,7 @@ public class LaunchComponent implements RobotComponent {
     }
     
     public void teleopInit() {
-        launchServo.set(LATCH_POSITION);
+        launchServo.set(UNLATCH_POSITION);
 
     }
     
@@ -65,7 +65,9 @@ public class LaunchComponent implements RobotComponent {
          lVictor.set(0);
          }
          */
-        System.out.println();
+        System.out.println(launchStick.getThrottle()+"    "+ launchServo.get());
+        launchServo.set(launchStick.getThrottle()); 
+        System.out.println("Time = " + timer.get());
         if(launchSwitch.get()) {
             if (launchButton.get() == true) { // would like to launch
                 if (!isLaunching) { // and not currently in launch mode
