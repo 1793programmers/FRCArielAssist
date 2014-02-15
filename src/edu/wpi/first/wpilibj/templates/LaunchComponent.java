@@ -25,6 +25,7 @@ public class LaunchComponent implements RobotComponent {
     private Joystick launchStick;
     private JoystickButton launchButton;
     private JoystickButton retractButton;
+    private DigitalInput launchSwitch; 
     private Timer timer;
     boolean isLaunching = false;
     private Servo launchServo;
