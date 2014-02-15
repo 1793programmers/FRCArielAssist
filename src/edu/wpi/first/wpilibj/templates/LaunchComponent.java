@@ -60,6 +60,7 @@ public class LaunchComponent implements RobotComponent {
          lVictor.set(0);
          }
          */
+         System.out.println();
         if(launchSwitch.get()) {
             if (launchButton.get() == true) { // would like to launch
                 if (!isLaunching) { // and not currently in launch mode
