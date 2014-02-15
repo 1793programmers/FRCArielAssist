@@ -70,7 +70,7 @@ public class LaunchComponent implements RobotComponent {
         System.out.println("Time = " + timer.get());
         if(launchSwitch.get()) {
             if (launchButton.get() == true) { // would like to launch
-                if (!isLaunching) { // and not currently in launch mode
+                if (isLaunching == false) { // and not currently in launch mode
                     timer.reset();
                     timer.start();
                     isLaunching = true;
@@ -80,8 +80,8 @@ public class LaunchComponent implements RobotComponent {
              } else {  // don't want to launch
             if (timer.get() > 1) { // if beyond time limit, stop launching
                 1Victor.set(-1.0);
-                launchServo.set(0);
-                isLaunching = false;
+                launchServo.set(LATCH_POSITION);
+                isLaunching = false; 
                 timer.reset();
                 timer.stop();
             } // otherwise, we are not to the time limit, so don't change
