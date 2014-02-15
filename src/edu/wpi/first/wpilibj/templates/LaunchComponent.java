@@ -28,6 +28,8 @@ public class LaunchComponent implements RobotComponent {
     private Timer timer;
     boolean isLaunching = false;
     private Servo launchServo;
+    private static final double LATCH_POSITION = .03125
+    private static final double UNLATCH_POSITION = .6377952755905512; 
 
     public LaunchComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v) {
         launchStick = j;
