@@ -47,7 +47,7 @@ public class LaunchComponent implements RobotComponent {
     }
     
     public void teleopInit() {
-        timer = new Timer();
+        launchServo.set(LATCH_POSITION);
 
     }
     
