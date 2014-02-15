@@ -26,7 +26,7 @@ public class LaunchComponent implements RobotComponent {
     private JoystickButton launchButton;
     private JoystickButton retractButton;
     private Timer timer;
-    boolean launching = false;
+    boolean isLaunching = false;
     private Servo launchServo;
 
     public LaunchComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v) {
@@ -54,14 +54,15 @@ public class LaunchComponent implements RobotComponent {
          lVictor.set(0);
          }
          */
-        if (launchButton.get() == true) { // would like to launch
-            if (!launching) { // and not currently in launch mode
-                timer.reset();
-                timer.start();
-                launching = true;
-                launchServo.set(1.0);
-            } // if already in launch mode, no need to change anything
-        } else {  // don't want to launch
+        if(launchSwitch.get()) {
+            if (launchButton.get() == true) { // would like to launch
+                if (!launching) { // and not currently in launch mode
+                    timer.reset();
+                    timer.start();
+                    launching = true;
+                    launchServo.set(1.0);
+                 } // if already in launch mode, no need to change anything
+             } else {  // don't want to launch
             if (timer.get() > (2000)) { // if beyond time limit, stop launching
                 launchServo.set(0);
                 launching = false;
