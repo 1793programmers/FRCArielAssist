@@ -77,6 +77,11 @@ public class LaunchComponent implements RobotComponent {
                     launchServo.set(UNLATCH_POSITION);
                     1Victor.set(1.0);
                  } // if already in launch mode, no need to change anything
+             else if (retractButton.get() == false) {
+                 isLaunching = false; 
+                 launchServo.set(LATCH_POSITION); 
+                 
+             }
              } else {  // don't want to launch
             if (timer.get() > 1) { // if beyond time limit, stop launching
                 1Victor.set(-1.0);
