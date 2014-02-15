@@ -36,6 +36,9 @@ public class LaunchComponent implements RobotComponent {
         launchButton = jb1;
         retractButton = jb2;
         lVictor = v;
+        launchSwitch = dI1; 
+        launchServo = s1; 
+        timer = new Timer();
     }
 
     public void autonomousPeriodic() {
