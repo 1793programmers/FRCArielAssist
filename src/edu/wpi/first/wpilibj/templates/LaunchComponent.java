@@ -59,14 +59,15 @@ public class LaunchComponent implements RobotComponent {
                 if (!isLaunching) { // and not currently in launch mode
                     timer.reset();
                     timer.start();
-                    launching = true;
+                    isLaunching = true;
                     launchServo.set(UNLATCH_POSITION);
                     1Victor.set(1.0);
                  } // if already in launch mode, no need to change anything
              } else {  // don't want to launch
-            if (timer.get() > (2000)) { // if beyond time limit, stop launching
+            if (timer.get() > 1) { // if beyond time limit, stop launching
+                1Victor.set(-1.0);
                 launchServo.set(0);
-                launching = false;
+                isLaunching = false;
                 timer.reset();
                 timer.stop();
             } // otherwise, we are not to the time limit, so don't change
