@@ -45,7 +45,12 @@ public class LaunchComponent implements RobotComponent {
     public void autonomousPeriodic() {
 
     }
+    
+    public void teleopInit() {
+        timer = new Timer();
 
+    }
+    
     public void teleopPeriodic() {
 
         /* if (launchButton.get() == true){
@@ -97,10 +102,7 @@ public class LaunchComponent implements RobotComponent {
 
     }
 
-    public void teleopInit() {
-        timer = new Timer();
-
-    }
+    
 
     public boolean getLaunching() {
         return launching;
