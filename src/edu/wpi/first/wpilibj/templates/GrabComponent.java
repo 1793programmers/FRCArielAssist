@@ -5,6 +5,7 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -19,12 +20,20 @@ public class GrabComponent implements RobotComponent {
     private JoystickButton grabButton;
     private JoystickButton releaseButton;
     private Victor vMotor;
+    private DigitalInput grabberLimitSwitch; 
+    public static final int NEUTRAL = 1; 
+    public static final int GRABBING = 2; 
+    public static final int RELEASING = 3; 
+    private static int currentState = NEUTRAL;        
     
-    public GrabComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v){
+    public GrabComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v, DigitalInput g){
         jStick = j;
         grabButton = jb1;
         releaseButton = jb2;
         vMotor = v;
+        grabberLimitSwitch = g; 
+        currentState = NEUTRAL;
+        
     }
 
     public void autonomousInit() {
@@ -37,20 +46,55 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void teleopInit() {
-        System.out.println("Grab Component initialized for teleop"); 
+        System.out.println("Grab Component initialized for teleop");
+        currentState = NEUTRAL;
+
     }
 
     public void teleopPeriodic() {
         
+//        boolean isGrabPressed = grabButton.get();
+//        boolean isReleasePressed = releaseButton.get();
+//        if(isGrabPressed){
+//            vMotor.set(-1.0);
+//        }else if(isReleasePressed){
+//            vMotor.set(1.0);
+//        }else{
+//            vMotor.set(0.0);
+//        } 
         boolean isGrabPressed = grabButton.get();
         boolean isReleasePressed = releaseButton.get();
-        if(isGrabPressed){
-            vMotor.set(-1.0);
-        }else if(isReleasePressed){
-            vMotor.set(1.0);
-        }else{
-            vMotor.set(0.0);
-        } 
+        boolean isLaunching = RobotRunner.getLaunchComponent().isLaunching(); 
+        switch(currentState) {
+            case NEUTRAL: 
+                vMotor.set(0.0);
+                if(isGrabPressed){
+                    currentState = GRABBING;
+                }
+                if(isReleasePressed || isLaunching) {
+                    currentState = RELEASING; 
+                }
+                break;
+            case GRABBING:
+                if(!grabberLimitSwitch.get()) {
+                    vMotor.set(-1.0); 
+                } else {
+                    vMotor.set(0.0);
+                }
+                if(!isGrabPressed) {
+                    currentState = NEUTRAL; 
+                }
+                if(isReleasePressed || isLaunching) {
+                    currentState = RELEASING; 
+                }
+                break;
+            case RELEASING:
+                vMotor.set(1.0);
+                if(!isReleasePressed && !isLaunching) {
+                    currentState = NEUTRAL; 
+                }
+                break;
+        }
     }
     
     public void disabledInit() {
