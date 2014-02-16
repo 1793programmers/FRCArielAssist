@@ -92,6 +92,7 @@ public class LaunchComponent implements RobotComponent {
         } else {
             lVictor.set(0);
         }
+        
     }
 
     public void testPeriodic() {
@@ -106,4 +107,9 @@ public class LaunchComponent implements RobotComponent {
 
     public void disabledInit() {
     }
-}
+    public boolean isLaunching() {
+        return isLaunching; 
+    } 
+    
+    
+}   
