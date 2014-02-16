@@ -16,17 +16,17 @@ import edu.wpi.first.wpilibj.image.ColorImage;
  * @author milo
  */
 public class CameraComponent implements RobotComponent {
-   //Made by Gunner Greene 2013-14     
+        
     AxisCamera camera; //Camera
     private int imageWidth;//width of image
     //DriverStation dS = DriverStation.getInstance();
     ColorImage image;
         
-    public CameraComponent(AxisCamera c) {
+    public CameraComponent() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
         
-        camera = c;
+        camera = AxisCamera.getInstance("192.168.0.90");
         camera.writeMaxFPS(5);
         camera.writeResolution(AxisCamera.ResolutionT.k160x120);
         camera.writeCompression(20);
