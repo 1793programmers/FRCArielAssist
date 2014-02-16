@@ -101,7 +101,7 @@ public class LiftComponent implements RobotComponent {
                 currentState = RESETTING; 
             }    
             break; 
-        case DEPLOYING:     
+        case DEPLOYING:
             armVictor.set(-armSignal); 
             if(!isFLimitOpen || armSignal == 0) {
                 currentState = NEUTRAL; 
