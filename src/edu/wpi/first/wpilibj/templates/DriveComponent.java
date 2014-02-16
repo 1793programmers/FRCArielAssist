@@ -58,37 +58,13 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void teleopPeriodic() {
-            /*
-            accelerationZ = accel.getAcceleration(ADXL345_I2C.Axes.kZ);
-            accelerationX = accel.getAcceleration(ADXL345_I2C.Axes.kX);
-            accelerationY = accel.getAcceleration(ADXL345_I2C.Axes.kY);
-            System.out.println("Z is " + accelerationZ);
-            Timer.delay(.25);
-            System.out.println("X is " + accelerationX);
-            Timer.delay(.25);
-            System.out.println("Y is " + accelerationY);
-            Timer.delay(.25);
-            try {
-            fljag.setX(-(dStick.getY()));
-            rljag.setX(-(dStick.getY()));
-            frjag.setX(-(dStick.getY()));
-            rrjag.setX(-(dStick.getY()));
-            System.out.println("Leonard made me do it!!");
-            } catch(CANTimeoutException ex) {
-                ex.printStackTrace();
-            }*/
         drive.mecanumDrive_Cartesian(dStick.getX(), dStick.getY(), dStick.getTwist(), RobotRunner.getGyro().getAngle());
     }
 
-    public void testPeriodic() {
-    }
 
     public void disabledPeriodic() {
     }
 
-    /**
-     *
-     */
 //    @Override
     public void autonomousInit() {
         System.out.println("Drive Component initialized for autonomous"); 
@@ -96,7 +72,6 @@ public class DriveComponent implements RobotComponent {
 
 //    @Override
     public void disabledInit() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 //    @Override
