@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.camera.AxisCamera;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
 /**
@@ -41,6 +42,7 @@ public class RobotRunner extends IterativeRobot {
     private JoystickButton retractButton;
     private JoystickButton grabButton; //4 on left side of joy, 5 on right side. in <-- out -->
     private JoystickButton releaseButton;
+    private JoystickButton resetButton; 
     private Victor liftVictor;
     private Victor grabVictor;
     private Victor launchVictor;
@@ -70,6 +72,7 @@ public class RobotRunner extends IterativeRobot {
         gyro = new Gyro(1);
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
         armJoystick = new Joystick(2);
+        resetButton = new JoystickButton(armJoystick, 3); 
         launchButton = new JoystickButton(armJoystick, 1);
         retractButton = new JoystickButton(armJoystick, 2);
         grabButton = new JoystickButton(armJoystick, 4);
@@ -82,7 +85,7 @@ public class RobotRunner extends IterativeRobot {
         launchLimitSwitch = new DigitalInput(3);
         grabberLimitSwitch = new DigitalInput(4);
         launchServo = new Servo(10);
-        camera = new AxisCamera.getInstance("192.168.0.90")
+        camera = AxisCamera.getInstance("192.168.0.90");
 
         try {
             if (testBoard) {
@@ -101,9 +104,9 @@ public class RobotRunner extends IterativeRobot {
             ex.printStackTrace();
         }
         driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
-        grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
+        grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor, grabberLimitSwitch);
         launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchLimitSwitch, launchServo);
-        liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
+        liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, resetButton);
         cameraComp = new CameraComponent(camera);
         // Collect components
         components[0] = driveComp;
