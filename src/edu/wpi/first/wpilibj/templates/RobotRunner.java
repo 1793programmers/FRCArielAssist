@@ -72,7 +72,7 @@ public class RobotRunner extends IterativeRobot {
         gyro = new Gyro(1);
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
         armJoystick = new Joystick(2);
-        resetButton = new JoystickButton(armJoystick, 3); 
+        resetButton = new JoystickButton(armJoystick, 11); 
         launchButton = new JoystickButton(armJoystick, 1);
         retractButton = new JoystickButton(armJoystick, 2);
         grabButton = new JoystickButton(armJoystick, 4);
