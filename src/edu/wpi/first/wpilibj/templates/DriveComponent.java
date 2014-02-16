@@ -40,6 +40,7 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
+        //Use diagram in engineering notebook to drive robot forward 2 seconds then stop.
         try {
         fljag.setX(1);
         rljag.setX(1);
