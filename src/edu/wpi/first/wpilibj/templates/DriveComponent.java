@@ -91,7 +91,7 @@ public class DriveComponent implements RobotComponent {
      */
 //    @Override
     public void autonomousInit() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Drive Component initialized for autonomous"); 
     }
 
 //    @Override
@@ -101,7 +101,7 @@ public class DriveComponent implements RobotComponent {
 
 //    @Override
     public void teleopInit() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Drive Component initialized for teleop"); 
     }
 
 }
