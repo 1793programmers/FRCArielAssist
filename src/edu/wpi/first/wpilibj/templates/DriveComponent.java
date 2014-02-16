@@ -6,10 +6,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
+
 /**
  *
  * @author milo
