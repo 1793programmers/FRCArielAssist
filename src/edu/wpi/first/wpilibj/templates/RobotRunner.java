@@ -53,14 +53,12 @@ public class RobotRunner extends IterativeRobot {
     //CAMERA BELOW
     private AxisCamera camera;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
-    private DriveComponent driveComp;
-    private GrabComponent grabComp;
+    private static DriveComponent driveComp;
+    private static GrabComponent grabComp;
     private static LaunchComponent launchComp;
-    private LiftComponent liftComp;
-    private CameraComponent cameraComp;
+    private static LiftComponent liftComp;
+    private static CameraComponent cameraComp;
     private RobotComponent[] components = new RobotComponent[5];
-    private TestComponent testComp;
-    //Put all components above in an array to traverse later
 
     /**
      * This function is run when the robot is first started up and should be
@@ -106,75 +104,78 @@ public class RobotRunner extends IterativeRobot {
         grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
         launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchLimitSwitch, launchServo);
         liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
-        //cameraComp = new CameraComponent(camera);
-        //testComp = new TestComponent(armJoystick, launchButton, retractButton, launchVictor);
-        //         components[0] = testComp;
+        cameraComp = new CameraComponent(camera);
+        // Collect components
+        components[0] = driveComp;
+        components[1] = grabComp;
+        components[2] = launchComp;
+        components[3] = liftComp;
+        components[4] = cameraComp;
 
-//Run each component's initialize method
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousInit() {
-        /*for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) {
          components[i].autonomousInit();
-         }*/
+         }
     }
 
     public void autonomousPeriodic() {
-        /*for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) {
          components[i].autonomousPeriodic();
-         }*/
+         }
     }
 
-    /**
-     * This function is called periodically during operator control
-     */
+
     public void disabledInit() {
-        /*for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) {
          components[i].disabledInit();
-         }*/
+         }
     }
 
     public void disabledPeriodic() {
-        /*for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) {
          components[i].disabledPeriodic();
-         }*/
+         }
     }
 
     public void teleopInit() {
-        //testComp.teleopInit();
-        launchComp.teleopInit();
-        /*for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) {
          components[i].teleopInit();
-         }*/
+         }
     }
 
     public void teleopPeriodic() {
-        /*for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) {
          components[i].teleopPeriodic();
-         }*/
-        launchComp.teleopPeriodic();
-        grabComp.teleopPeriodic();
-        liftComp.teleopPeriodic();
-        driveComp.teleopPeriodic();
-        //cameraComp.teleopPeriodic();
-        //components[0].teleopPeriodic();
-//        components[2].teleopPeriodic();
-//        components[3].teleopPeriodic();
-//        components[4].teleopPeriodic();
-
+         }
     }
 
     public static LaunchComponent getLaunchComponent() {
         return launchComp;
     }
     
+    public static DriveComponent getDriveComponent() {
+        return driveComp;
+    }
+    
+    public static LiftComponent getLiftComponent() {
+        return liftComp;
+    }
+    
+    public static GrabComponent getGrabComponent() {
+        return grabComp;
+    }
+    
+    public static CameraComponent getCameraComponent() {
+        return cameraComp;
+    }
+    
     public static Gyro getGyro(){
         return gyro;
     }
-    /**
-     * This function is called periodically during test mode
-     */
+
 }
