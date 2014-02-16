@@ -35,6 +35,7 @@ public class LiftComponent implements RobotComponent {
         if (!isBLimitOpen) { //when limitswitch is closed the arm will stop
             armVictor.set(0); 
         }
+        System.out.println("Lift Component initialized for autonomous"); 
     }
 
     public void autonomousPeriodic() {
