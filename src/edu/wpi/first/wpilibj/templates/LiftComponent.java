@@ -44,11 +44,11 @@ public class LiftComponent implements RobotComponent {
 
     public void teleopInit() {
          
-
+        System.out.println("Lift Component initialized for teleop"); 
     }
 
     public void teleopPeriodic() {
-        System.out.println("Reached teleop"); 
+
         
         boolean isFLimitOpen = fLimitSwitch.get();  
         boolean isBLimitOpen = bLimitSwitch.get(); 
