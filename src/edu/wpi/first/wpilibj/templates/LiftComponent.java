@@ -53,16 +53,16 @@ public class LiftComponent implements RobotComponent {
         boolean isFLimitOpen = fLimitSwitch.get();  
         boolean isBLimitOpen = bLimitSwitch.get(); 
         double armSignal = armStick.getY(); //vertical axis of joystick 
-        if(armSignal < 0) { //move forward
+        if(armSignal < 0) { //move reverse
             if(isFLimitOpen) { 
-                armVictor.set(1.0); //move motor forward
+                armVictor.set(-armSignal); //clockwise is negative
             System.out.println(armVictor.get()); //shows pwm value 
             } else { 
                 armVictor.set(0); 
             }
-        } else if (armSignal > 0){
+        } else if (armSignal > 0){//move forward
             if(isBLimitOpen) {
-                armVictor.set(-1.0);
+                armVictor.set(-armSignal); //ccw is positive
             } else {
                 armVictor.set(0); 
             }
