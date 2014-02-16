@@ -103,11 +103,15 @@ public class LiftComponent implements RobotComponent {
             break; 
         case DEPLOYING:     
             armVictor.set(-armSignal); 
-            if(!isFLimitOpen || ) {
+            if(!isFLimitOpen || armSignal == 0) {
                 currentState = NEUTRAL; 
             }
-            
-            
+            if(armSignal < 0) {
+                currentState = RETRACTING;  
+            }
+            if(isResetPressed) {
+                currentState = RESETTING; 
+            }
             break; 
         case RETRACTING: 
             armVictor.set(-armSignal); 
