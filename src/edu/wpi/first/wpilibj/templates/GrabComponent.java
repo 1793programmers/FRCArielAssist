@@ -28,6 +28,7 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void autonomousInit() {
+        System.out.println("Grab Component initialized for autonomous"); 
         
     }
     
@@ -36,7 +37,7 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void teleopInit() {
-
+        System.out.println("Grab Component initialized for teleop"); 
     }
 
     public void teleopPeriodic() {
