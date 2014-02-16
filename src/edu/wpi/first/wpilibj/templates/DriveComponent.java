@@ -38,6 +38,7 @@ public class DriveComponent implements RobotComponent {
         frjag = jag4;
         rrjag = jag5;
         accel = a;
+        drive = new RobotDrive(fljag, rljag, frjag, rrjag);
     }
 
     public void autonomousPeriodic() {
@@ -57,7 +58,7 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void teleopPeriodic() {
-            
+            /*
             accelerationZ = accel.getAcceleration(ADXL345_I2C.Axes.kZ);
             accelerationX = accel.getAcceleration(ADXL345_I2C.Axes.kX);
             accelerationY = accel.getAcceleration(ADXL345_I2C.Axes.kY);
@@ -68,14 +69,15 @@ public class DriveComponent implements RobotComponent {
             System.out.println("Y is " + accelerationY);
             Timer.delay(.25);
             try {
-            fljag.setX(dStick.getY());
-            rljag.setX(dStick.getY());
-            frjag.setX(dStick.getThrottle());
-            rrjag.setX(dStick.getThrottle());
+            fljag.setX(-(dStick.getY()));
+            rljag.setX(-(dStick.getY()));
+            frjag.setX(-(dStick.getY()));
+            rrjag.setX(-(dStick.getY()));
             System.out.println("Leonard made me do it!!");
             } catch(CANTimeoutException ex) {
                 ex.printStackTrace();
-            }
+            }*/
+        drive.mecanumDrive_Cartesian(dStick.getX(), dStick.getY(), dStick.getTwist(), RobotRunner.getGyro().getAngle());
     }
 
     public void testPeriodic() {
