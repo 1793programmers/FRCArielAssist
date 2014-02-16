@@ -5,7 +5,6 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -20,22 +19,20 @@ public class GrabComponent implements RobotComponent {
     private JoystickButton grabButton;
     private JoystickButton releaseButton;
     private Victor vMotor;
-    DigitalInput grabberSwitch;
     
-    public GrabComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v, DigitalInput s1){
+    public GrabComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v){
         jStick = j;
         grabButton = jb1;
         releaseButton = jb2;
         vMotor = v;
-        grabberSwitch = s1;
-    }   
+    }
 
     public void autonomousInit() {
         
     }
     
     public void autonomousPeriodic() {
-        
+        vMotor.set(-1);
     }
 
     public void teleopInit() {
@@ -43,22 +40,16 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void teleopPeriodic() {
-        boolean isGrabberOpen = grabberSwitch.get();
+        
+        boolean isGrabPressed = grabButton.get();
         boolean isReleasePressed = releaseButton.get();
-        double grabSignal = jStick.getY();
-        if (RobotRunner.getLaunchComponent().getLaunching()){
+        if(isGrabPressed){
             vMotor.set(-1.0);
-        }
-        else {
-        if(grabSignal < 0)
-        if(isGrabberOpen){
-            vMotor.set(1.0);
         }else if(isReleasePressed){
-            vMotor.set(-1.0);
+            vMotor.set(1.0);
         }else{
             vMotor.set(0.0);
         } 
-      }
     }
     
     public void disabledInit() {
