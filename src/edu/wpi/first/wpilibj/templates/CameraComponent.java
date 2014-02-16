@@ -75,6 +75,7 @@ public class CameraComponent implements RobotComponent {
     }
 
     public void autonomousInit() {
+        System.out.println("Camera Component initialized for autonomous"); 
         
     }
     
@@ -83,7 +84,7 @@ public class CameraComponent implements RobotComponent {
     }
 
     public void teleopInit() {
-        
+        System.out.println("Camera Component initialized for teleop"); 
     }
 
 }
