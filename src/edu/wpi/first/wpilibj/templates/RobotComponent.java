@@ -6,11 +6,10 @@ package edu.wpi.first.wpilibj.templates;
 
 /**
  *
- * @author Naomi
+ * @author MEOW MEOW
  */
 public interface RobotComponent {
 
-    public void initialize();
     public void autonomousInit();
     public void autonomousPeriodic();
     //public void autonomousContinuous();
