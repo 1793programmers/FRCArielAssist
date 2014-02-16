@@ -48,6 +48,7 @@ public class LaunchComponent implements RobotComponent {
 
     public void teleopInit() {
         launchServo.set(UNLATCH_POSITION);
+        System.out.println("Launch Component initialized for teleop"); 
     }
 
     public void teleopPeriodic() {
@@ -100,6 +101,7 @@ public class LaunchComponent implements RobotComponent {
     }
 
     public void autonomousInit() {
+        System.out.println("Launch Component initialized for autonomous"); 
     }
 
     public void disabledInit() {
