@@ -50,6 +50,8 @@ public class RobotRunner extends IterativeRobot {
     private DigitalInput gBLimitSwitch;
     private DigitalInput launchLimitSwitch;
     private DigitalInput grabberLimitSwitch;
+    //CAMERA BELOW
+    private AxisCamera camera;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
     private DriveComponent driveComp;
     private GrabComponent grabComp;
@@ -82,6 +84,7 @@ public class RobotRunner extends IterativeRobot {
         launchLimitSwitch = new DigitalInput(3);
         grabberLimitSwitch = new DigitalInput(4);
         launchServo = new Servo(10);
+        camera = new AxisCamera.getInstance("192.168.0.90")
 
         try {
             if (testBoard) {
@@ -103,7 +106,7 @@ public class RobotRunner extends IterativeRobot {
         grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
         launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchLimitSwitch, launchServo);
         liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
-        //cameraComp = new CameraComponent();
+        //cameraComp = new CameraComponent(camera);
         //testComp = new TestComponent(armJoystick, launchButton, retractButton, launchVictor);
         //         components[0] = testComp;
 
