@@ -9,8 +9,10 @@ package edu.wpi.first.wpilibj.templates;
 import edu.wpi.first.wpilibj.ADXL345_I2C;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
@@ -24,7 +26,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  */
 public class RobotRunner extends IterativeRobot {
 
-    //Gunner is Awesome!
+    private final boolean testBoard = false; // which JAG IDs to load
     //DRIVE FIELDS BELOW!
     private Joystick driveJoystick;
     private CANJaguar fljag;  //Front Left Wheel Jag
@@ -32,6 +34,7 @@ public class RobotRunner extends IterativeRobot {
     private CANJaguar frjag; //Front Right Wheel Jag
     private CANJaguar rrjag; //Rear Right Wheel Jag
     private ADXL345_I2C accel;
+    private static Gyro gyro;
     //ARM FIELDS BELOW!
     private Joystick armJoystick;
     private JoystickButton launchButton;
@@ -42,11 +45,11 @@ public class RobotRunner extends IterativeRobot {
     private Victor grabVictor;
     private Victor launchVictor;
     private Servo launchServo;
-    
     //SWITCHES BELOW!
     private DigitalInput gFLimitSwitch;
     private DigitalInput gBLimitSwitch;
     private DigitalInput launchLimitSwitch;
+    private DigitalInput grabberLimitSwitch;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
     private DriveComponent driveComp;
     private GrabComponent grabComp;
@@ -54,7 +57,6 @@ public class RobotRunner extends IterativeRobot {
     private LiftComponent liftComp;
     private CameraComponent cameraComp;
     private RobotComponent[] components = new RobotComponent[5];
-    
     private TestComponent testComp;
     //Put all components above in an array to traverse later
 
@@ -65,9 +67,10 @@ public class RobotRunner extends IterativeRobot {
     public void robotInit() {
         //Jag instantiations below
         driveJoystick = new Joystick(1);
+        gyro = new Gyro(1);
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
         armJoystick = new Joystick(2);
-        launchButton = new JoystickButton(armJoystick, 3);
+        launchButton = new JoystickButton(armJoystick, 1);
         retractButton = new JoystickButton(armJoystick, 2);
         grabButton = new JoystickButton(armJoystick, 4);
         releaseButton = new JoystickButton(armJoystick, 5);
@@ -77,25 +80,32 @@ public class RobotRunner extends IterativeRobot {
         gFLimitSwitch = new DigitalInput(1);
         gBLimitSwitch = new DigitalInput(2);
         launchLimitSwitch = new DigitalInput(3);
-        launchServo = new Servo(10); 
-        
+        grabberLimitSwitch = new DigitalInput(4);
+        launchServo = new Servo(10);
+
         try {
-            fljag = new CANJaguar(2); //Front Left Wheel Jag
-            rljag = new CANJaguar(3); //Rear Left Wheel Jag
-            frjag = new CANJaguar(4); //Front Right Wheel Jag
-            rrjag = new CANJaguar(5); //Rear Right Wheel Jag
-            
+            if (testBoard) {
+                fljag = new CANJaguar(2); //Front Left Wheel Jag
+                rljag = new CANJaguar(3); //Rear Left Wheel Jag
+                frjag = new CANJaguar(4); //Front Right Wheel Jag
+                rrjag = new CANJaguar(5); //Rear Right Wheel Jag
+            } else {
+                fljag = new CANJaguar(6); //Front Left Wheel Jag
+                rljag = new CANJaguar(11); //Rear Left Wheel Jag
+                frjag = new CANJaguar(12); //Front Right Wheel Jag
+                rrjag = new CANJaguar(7); //Rear Right Wheel Jag
+            }
 
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-          driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
-          grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
-          launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchServo, launchLimitSwitch);
-          liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
-          cameraComp = new CameraComponent();
-          //testComp = new TestComponent(armJoystick, launchButton, retractButton, launchVictor);
- //         components[0] = testComp;
+        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
+        grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor);
+        launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchLimitSwitch, launchServo);
+        liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch);
+        //cameraComp = new CameraComponent();
+        //testComp = new TestComponent(armJoystick, launchButton, retractButton, launchVictor);
+        //         components[0] = testComp;
 
 //Run each component's initialize method
     }
@@ -105,14 +115,14 @@ public class RobotRunner extends IterativeRobot {
      */
     public void autonomousInit() {
         /*for (int i = 0; i < components.length; i++) {
-            components[i].autonomousInit();
-        }*/
+         components[i].autonomousInit();
+         }*/
     }
 
     public void autonomousPeriodic() {
         /*for (int i = 0; i < components.length; i++) {
-            components[i].autonomousPeriodic();
-        }*/
+         components[i].autonomousPeriodic();
+         }*/
     }
 
     /**
@@ -120,41 +130,46 @@ public class RobotRunner extends IterativeRobot {
      */
     public void disabledInit() {
         /*for (int i = 0; i < components.length; i++) {
-            components[i].disabledInit();
-        }*/
+         components[i].disabledInit();
+         }*/
     }
 
     public void disabledPeriodic() {
-       /*for (int i = 0; i < components.length; i++) {
-            components[i].disabledPeriodic();
-        }*/
+        /*for (int i = 0; i < components.length; i++) {
+         components[i].disabledPeriodic();
+         }*/
     }
 
     public void teleopInit() {
-        //testComp.teleopInit();        
+        //testComp.teleopInit();
+        launchComp.teleopInit();
         /*for (int i = 0; i < components.length; i++) {
-            components[i].teleopInit();
-        }*/
+         components[i].teleopInit();
+         }*/
     }
 
     public void teleopPeriodic() {
         /*for (int i = 0; i < components.length; i++) {
-            components[i].teleopPeriodic();
-        }*/
+         components[i].teleopPeriodic();
+         }*/
         launchComp.teleopPeriodic();
         grabComp.teleopPeriodic();
         liftComp.teleopPeriodic();
         driveComp.teleopPeriodic();
-        cameraComp.teleopPeriodic();
+        //cameraComp.teleopPeriodic();
         //components[0].teleopPeriodic();
 //        components[2].teleopPeriodic();
 //        components[3].teleopPeriodic();
 //        components[4].teleopPeriodic();
-        
+
+    }
+
+    public static LaunchComponent getLaunchComponent() {
+        return launchComp;
     }
     
-    public static LaunchComponent getLaunchComponent(){
-        return launchComp;
+    public static Gyro getGyro(){
+        return gyro;
     }
     /**
      * This function is called periodically during test mode
