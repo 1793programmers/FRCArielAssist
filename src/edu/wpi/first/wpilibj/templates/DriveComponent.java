@@ -58,14 +58,6 @@ public class DriveComponent implements RobotComponent {
 
     public void teleopPeriodic() {
         drive.mecanumDrive_Cartesian(-dStick.getY(), dStick.getX(),-dStick.getTwist(), RobotRunner.getGyro().getAngle() - 90);//Fixing Forward, Backward, and Twisting
-        try {
-            System.out.println(fljag.getX());
-            System.out.println(rljag.getX());
-            System.out.println(frjag.getX());
-            System.out.println(rrjag.getX());
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
-        }
     }
 
     public void disabledPeriodic() {
