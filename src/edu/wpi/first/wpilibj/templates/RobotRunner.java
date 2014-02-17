@@ -38,11 +38,11 @@ public class RobotRunner extends IterativeRobot {
     private static Gyro gyro;
     //ARM FIELDS BELOW!
     private Joystick armJoystick;
+    private JoystickButton resetButton; 
     private JoystickButton launchButton;
     private JoystickButton retractButton;
     private JoystickButton grabButton; //4 on left side of joy, 5 on right side. in <-- out -->
     private JoystickButton releaseButton;
-    private JoystickButton resetButton; 
     private Victor liftVictor;
     private Victor grabVictor;
     private Victor launchVictor;
@@ -60,7 +60,7 @@ public class RobotRunner extends IterativeRobot {
     private static LaunchComponent launchComp;
     private static LiftComponent liftComp;
     private static CameraComponent cameraComp;
-    private RobotComponent[] components = new RobotComponent[5];
+    private RobotComponent[] components = new RobotComponent[4];
 
     /**
      * This function is run when the robot is first started up and should be
@@ -113,7 +113,7 @@ public class RobotRunner extends IterativeRobot {
         components[1] = grabComp;
         components[2] = launchComp;
         components[3] = liftComp;
-        components[4] = cameraComp;
+       // components[4] = cameraComp;
 
     }
 
@@ -146,15 +146,17 @@ public class RobotRunner extends IterativeRobot {
     }
 
     public void teleopInit() {
-        for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) { 
          components[i].teleopInit();
          }
+        cameraComp.teleopInit();
     }
 
     public void teleopPeriodic() {
-        for (int i = 0; i < components.length; i++) {
+        for (int i = 0; i < components.length; i++) { 
          components[i].teleopPeriodic();
          }
+        cameraComp.teleopPeriodic();
     }
 
     public static LaunchComponent getLaunchComponent() {
