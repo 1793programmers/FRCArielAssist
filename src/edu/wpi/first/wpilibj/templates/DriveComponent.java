@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
-
 /**
  *
  * @author milo
@@ -23,13 +22,13 @@ public class DriveComponent implements RobotComponent {
     private CANJaguar rljag; //Rear Left Wheel Jag
     private CANJaguar frjag; //Front Right Wheel Jag
     private CANJaguar rrjag; //Rear Right Wheel Jag
-    private ADXL345_I2C accel; 
+    private ADXL345_I2C accel;
     private double accelerationX;
     private double accelerationY;
     private double accelerationZ;
     ADXL345_I2C.AllAxes accelerations;
 
-    public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a){
+    public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a) {
         dStick = j;
         fljag = jag2;
         rljag = jag3;
@@ -37,36 +36,44 @@ public class DriveComponent implements RobotComponent {
         rrjag = jag5;
         accel = a;
         drive = new RobotDrive(fljag, rljag, frjag, rrjag);
+        drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+        drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
     }
 
     public void autonomousPeriodic() {
-        //Use diagram in engineering notebook to drive robot forward 2 seconds then stop.
         try {
-        fljag.setX(1);
-        rljag.setX(1);
-        frjag.setX(1);
-        rrjag.setX(1);
-        Timer.delay(2);
-        fljag.setX(0);
-        rljag.setX(0);
-        frjag.setX(0);
-        rrjag.setX(0);
+            fljag.setX(1);
+            rljag.setX(1);
+            frjag.setX(1);
+            rrjag.setX(1);
+            Timer.delay(2);
+            fljag.setX(0);
+            rljag.setX(0);
+            frjag.setX(0);
+            rrjag.setX(0);
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
     }
 
     public void teleopPeriodic() {
-        drive.mecanumDrive_Cartesian(dStick.getX(), dStick.getY(), dStick.getTwist(), RobotRunner.getGyro().getAngle());
+        drive.mecanumDrive_Cartesian(-dStick.getY(), dStick.getX(),-dStick.getTwist(), RobotRunner.getGyro().getAngle() - 90);//Fixing Forward, Backward, and Twisting
+        try {
+            System.out.println(fljag.getX());
+            System.out.println(rljag.getX());
+            System.out.println(frjag.getX());
+            System.out.println(rrjag.getX());
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
     }
-
 
     public void disabledPeriodic() {
     }
 
 //    @Override
     public void autonomousInit() {
-        System.out.println("Drive Component initialized for autonomous"); 
+        System.out.println("Drive Component initialized for autonomous");
     }
 
 //    @Override
@@ -75,7 +82,6 @@ public class DriveComponent implements RobotComponent {
 
 //    @Override
     public void teleopInit() {
-        System.out.println("Drive Component initialized for teleop"); 
+        System.out.println("Drive Component initialized for teleop");
     }
-
 }
