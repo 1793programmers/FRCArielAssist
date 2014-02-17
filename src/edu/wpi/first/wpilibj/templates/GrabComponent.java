@@ -64,7 +64,10 @@ public class GrabComponent implements RobotComponent {
 //        } 
         boolean isGrabPressed = grabButton.get();
         boolean isReleasePressed = releaseButton.get();
-        boolean isLaunching = RobotRunner.getLaunchComponent().isLaunching(); 
+        boolean isLaunching = RobotRunner.getLaunchComponent().isLaunching();
+        boolean ballHeld = !grabberLimitSwitch.get();
+        
+        System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
         switch(currentState) {
             case NEUTRAL: 
                 vMotor.set(0.0);
@@ -76,7 +79,7 @@ public class GrabComponent implements RobotComponent {
                 }
                 break;
             case GRABBING:
-                if(!grabberLimitSwitch.get()) {
+                if(!ballHeld) {
                     vMotor.set(-1.0); 
                 } else {
                     vMotor.set(0.0);
