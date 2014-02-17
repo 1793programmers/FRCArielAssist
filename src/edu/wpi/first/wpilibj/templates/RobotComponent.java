@@ -12,12 +12,10 @@ public interface RobotComponent {
 
     public void autonomousInit();
     public void autonomousPeriodic();
-    //public void autonomousContinuous();
     public void disabledInit();
     public void disabledPeriodic();
-    //public void disabledContinuous();
     public void teleopInit();
     public void teleopPeriodic();
-    //public void teleopContinuous();
+
 }
     
