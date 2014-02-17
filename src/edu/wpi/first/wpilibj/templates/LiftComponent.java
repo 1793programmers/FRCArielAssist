@@ -142,6 +142,4 @@ public class LiftComponent implements RobotComponent {
 
     public void disabledPeriodic() {
     }
-
-  
 }
