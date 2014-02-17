@@ -105,7 +105,5 @@ public class GrabComponent implements RobotComponent {
 
     public void disabledPeriodic() {
     }
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
 
 }
