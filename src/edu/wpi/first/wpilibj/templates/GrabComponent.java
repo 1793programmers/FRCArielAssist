@@ -9,14 +9,12 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
-A
+
 /**
  *
  * @author 1SRJ
  */
 public class GrabComponent implements RobotComponent {
-
-    private Joystick jStick;
     private JoystickButton grabButton; // button
     private JoystickButton releaseButton; //button 
     private Victor grabberVictor;
@@ -26,8 +24,7 @@ public class GrabComponent implements RobotComponent {
     public static final int RELEASING = 3; 
     private static int currentState = NEUTRAL;        
     
-    public GrabComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v, DigitalInput g){
-        jStick = j;
+    public GrabComponent(JoystickButton jb1, JoystickButton jb2, Victor v, DigitalInput g){
         grabButton = jb1;
         releaseButton = jb2;
         grabberVictor = v;
@@ -64,10 +61,10 @@ public class GrabComponent implements RobotComponent {
 //        } 
         boolean isGrabPressed = grabButton.get();
         boolean isReleasePressed = releaseButton.get();
-        boolean isLaunching = RobotRunner.getLaunchComponent().isLaunching();
+        boolean isLaunching = (RobotRunner.getLaunchComponent().getState() == LaunchComponent.LAUNCHING);
         boolean ballHeld = !grabberLimitSwitch.get();
         
-        System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
+        //System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
         switch(currentState) {
             case NEUTRAL: 
                 grabberVictor.set(0.0);
