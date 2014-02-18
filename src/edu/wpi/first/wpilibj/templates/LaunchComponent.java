@@ -31,6 +31,7 @@ public class LaunchComponent implements RobotComponent {
     private Servo launchServo;
     private boolean isLaunching = false;
     private Timer timer;
+    private static final double timeout = 1.0;
     private static final double UNLATCH_POSITION = 0.0;
     private static final double LATCH_POSITION = 0.6425531914893617;
     public static final int NEUTRAL = 1;
@@ -42,7 +43,7 @@ public class LaunchComponent implements RobotComponent {
 
     public LaunchComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v, DigitalInput dI1, DigitalInput dI2, Servo s1) {
         launchStick = j;
-        autoLaunchButton = jb1;
+        launchButton = jb1;
         manualLaunchButton = jb2;
         launchVictor = v;
         forwardLaunchSwitch = dI1;
@@ -117,18 +118,14 @@ public class LaunchComponent implements RobotComponent {
                 
                 case NEUTRAL:
                     launchVictor.set(0.0);
-                    //launchServo.set(0.0);
-                    if (autoLaunchButton.get() == true && RobotRunner.getManualMode() == false) {//if in auto mode and button 2 pressed
-                        currentState = AUTO_LAUNCHING;
+                    launchServo.set(0.0);
+                    if (launchButton.get() == true) {//if in auto mode and button 2 pressed
+                        timer.reset();
+                        timer.start();
+                        currentState = LAUNCHING;
                     }
-                    if (manualLaunchButton.get() && RobotRunner.getManualMode() == true) {
-                        currentState = MANUAL_LAUNCHING;
-                    }
-                    if (launchSignal < 0 && RobotRunner.getManualMode() == true) {
-                        currentState = LAUNCH_REVERSE;
-                    }
-                    if (launchSignal > 0 && RobotRunner.getManualMode() == true) {
-                        currentState = LAUNCH_FORWARD;
+                    if (manualLaunchButton.get() {
+                        currentState = MANUAL_LATCHING;
                     }
 
                     break;
