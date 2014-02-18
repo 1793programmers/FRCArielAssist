@@ -57,7 +57,7 @@ public class LiftComponent implements RobotComponent {
     public void teleopPeriodic() {
         boolean isForwardLimitSwitchShut = !fLimitSwitch.get();
         boolean isBackwardLimitSwitchShut = !bLimitSwitch.get();
-        
+        printState(isForwardLimitSwitchShut, isBackwardLimitSwitchShut);
         armVictor.set(0.0);
         double armSignal = armStick.getThrottle();
         
@@ -79,5 +79,8 @@ public class LiftComponent implements RobotComponent {
     }
 
     public void disabledPeriodic() {
+    }
+    private void printState(boolean a, boolean b){
+        System.out.println("Forward Limit ="+a+"Back Limit ="+b);
     }
 }
