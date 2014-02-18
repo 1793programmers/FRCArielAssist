@@ -116,7 +116,7 @@ public class RobotRunner extends IterativeRobot {
             ex.printStackTrace();
         }
         driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel, triggerServo);
-        grabComp = new GrabComponent(grabButton, shootButton, grabVictor, grabberLimitSwitch);
+        grabComp = new GrabComponent(grabButton, shootButton, passButton, grabVictor, grabberLimitSwitch);
         launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, forwardLaunchLimitSwitch, backwardLaunchLimitSwitch, triggerServo);
         liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, grabButton);
         //cameraComp = new CameraComponent(camera);
