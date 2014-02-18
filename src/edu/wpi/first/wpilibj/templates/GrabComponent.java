@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
-
+A
 /**
  *
  * @author 1SRJ
@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 public class GrabComponent implements RobotComponent {
 
     private Joystick jStick;
-    private JoystickButton grabButton;
-    private JoystickButton releaseButton;
-    private Victor vMotor;
+    private JoystickButton grabButton; // button
+    private JoystickButton releaseButton; //button 
+    private Victor grabberVictor;
     private DigitalInput grabberLimitSwitch; 
     public static final int NEUTRAL = 1; 
     public static final int GRABBING = 2; 
@@ -30,7 +30,7 @@ public class GrabComponent implements RobotComponent {
         jStick = j;
         grabButton = jb1;
         releaseButton = jb2;
-        vMotor = v;
+        grabberVictor = v;
         grabberLimitSwitch = g; 
         currentState = NEUTRAL;
         
@@ -42,7 +42,7 @@ public class GrabComponent implements RobotComponent {
     }
     
     public void autonomousPeriodic() {
-        vMotor.set(-1);
+        grabberVictor.set(-1);
     }
 
     public void teleopInit() {
@@ -70,7 +70,7 @@ public class GrabComponent implements RobotComponent {
         System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
         switch(currentState) {
             case NEUTRAL: 
-                vMotor.set(0.0);
+                grabberVictor.set(0.0);
                 if(isGrabPressed){
                     currentState = GRABBING;
                 }
@@ -80,9 +80,9 @@ public class GrabComponent implements RobotComponent {
                 break;
             case GRABBING:
                 if(!ballHeld) {
-                    vMotor.set(-1.0); 
+                    grabberVictor.set(-1.0); 
                 } else {
-                    vMotor.set(0.0);
+                    grabberVictor.set(0.0);
                 }
                 if(!isGrabPressed) {
                     currentState = NEUTRAL; 
@@ -92,7 +92,7 @@ public class GrabComponent implements RobotComponent {
                 }
                 break;
             case RELEASING:
-                vMotor.set(1.0);
+                grabberVictor.set(1.0);
                 if(!isReleasePressed && !isLaunching) {
                     currentState = NEUTRAL; 
                 }
