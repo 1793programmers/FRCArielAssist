@@ -27,11 +27,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  */
 public class RobotRunner extends IterativeRobot {
 
-    
-
     private final boolean testBoard = false; // which JAG IDs to load
-    private static boolean isArmFrozen = false;
-    private static boolean isManualMode = false;
     //DRIVE FIELDS BELOW!
     private Joystick driveJoystick;
     private JoystickButton resetGyroButton;
@@ -43,36 +39,33 @@ public class RobotRunner extends IterativeRobot {
     private static Gyro gyro;
     //ARM FIELDS BELOW!
     private Joystick armJoystick;
-    private JoystickButton resetButton; 
-    private JoystickButton autoLaunchButton;
+    private JoystickButton automaticButton;
+    private JoystickButton latchButton;
+    private JoystickButton cockButton;
+    private JoystickButton freezeButton;
+    private JoystickButton thawButton;
+    private JoystickButton shootButton;
     private JoystickButton grabButton; //4 on left side of joy, 5 on right side. in <-- out -->
-    private JoystickButton releaseButton;
-    private static JoystickButton armModeChange;
-    private JoystickButton manualLaunchButton;
-    private JoystickButton freezeButton1;
-    private JoystickButton freezeButton2;
+    private JoystickButton passButton;
     private Victor liftVictor;
     private Victor grabVictor;
     private Victor launchVictor;
-    private Servo launchServo;
+    private Servo triggerServo;
     //SWITCHES BELOW!
     private DigitalInput gFLimitSwitch;
     private DigitalInput gBLimitSwitch;
     private DigitalInput forwardLaunchLimitSwitch;
-    private DigitalInput backwardLaunchLimitSwitch; 
+    private DigitalInput backwardLaunchLimitSwitch;
     private DigitalInput grabberLimitSwitch;
     //CAMERA BELOW
-    private AxisCamera camera;
+    //private AxisCamera camera;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
     private static DriveComponent driveComp;
     private static GrabComponent grabComp;
     private static LaunchComponent launchComp;
     private static LiftComponent liftComp;
-    private static CameraComponent cameraComp;
+    //private static CameraComponent cameraComp;
     private RobotComponent[] components = new RobotComponent[4];
-    
-
-    
 
     /**
      * This function is run when the robot is first started up and should be
@@ -83,17 +76,18 @@ public class RobotRunner extends IterativeRobot {
         driveJoystick = new Joystick(1);
         gyro = new Gyro(1);
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
-        armJoystick = new Joystick(2);
         resetGyroButton = new JoystickButton(driveJoystick, 2);
-        resetButton = new JoystickButton(armJoystick, 9); 
-        autoLaunchButton = new JoystickButton(armJoystick, 2);
-        manualLaunchButton = new JoystickButton(armJoystick, 1);
-        armModeChange = new JoystickButton(armJoystick, 10);
-        grabButton = new JoystickButton(armJoystick, 5);
-        releaseButton = new JoystickButton(armJoystick, 7);
-        freezeButton1 = new JoystickButton(armJoystick, 6);
-        freezeButton2 = new JoystickButton(armJoystick, 8);
-        
+
+        // arm stick buttons
+        armJoystick = new Joystick(2);
+        automaticButton = new JoystickButton(armJoystick, 11);
+        latchButton = new JoystickButton(armJoystick, 5);
+        cockButton = new JoystickButton(armJoystick, 7);
+        freezeButton = new JoystickButton(armJoystick, 9);
+        thawButton = new JoystickButton(armJoystick, 10);
+        shootButton = new JoystickButton(armJoystick, 2);
+        grabButton = new JoystickButton(armJoystick, 4);
+        passButton = new JoystickButton(armJoystick, 3);
         grabVictor = new Victor(1);
         launchVictor = new Victor(2);
         liftVictor = new Victor(3);
@@ -102,8 +96,8 @@ public class RobotRunner extends IterativeRobot {
         forwardLaunchLimitSwitch = new DigitalInput(3);
         backwardLaunchLimitSwitch = new DigitalInput(4);
         grabberLimitSwitch = new DigitalInput(5);
-        launchServo = new Servo(10);
-        camera = AxisCamera.getInstance("192.168.0.90");
+        triggerServo = new Servo(10);
+        //camera = AxisCamera.getInstance("192.168.0.90");
 
         try {
             if (testBoard) {
@@ -121,17 +115,17 @@ public class RobotRunner extends IterativeRobot {
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel, launchServo);
-        grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor, grabberLimitSwitch);
-        launchComp = new LaunchComponent(armJoystick, autoLaunchButton, manualLaunchButton, launchVictor, forwardLaunchLimitSwitch, backwardLaunchLimitSwitch, launchServo);
-        liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, resetButton);
-        cameraComp = new CameraComponent(camera);
-        // Collect components
+        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel, triggerServo);
+        grabComp = new GrabComponent(grabButton, shootButton, grabVictor, grabberLimitSwitch);
+        launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, forwardLaunchLimitSwitch, backwardLaunchLimitSwitch, triggerServo);
+        liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, grabButton);
+        //cameraComp = new CameraComponent(camera);
+        // Collect 
         components[0] = driveComp;
         components[1] = grabComp;
         components[2] = launchComp;
         components[3] = liftComp;
-       // components[4] = cameraComp;
+        // components[4] = cameraComp;
 
     }
 
@@ -140,77 +134,63 @@ public class RobotRunner extends IterativeRobot {
      */
     public void autonomousInit() {
         for (int i = 0; i < components.length; i++) {
-         components[i].autonomousInit();
-         }
+            components[i].autonomousInit();
+        }
     }
 
     public void autonomousPeriodic() {
         for (int i = 0; i < components.length; i++) {
-         components[i].autonomousPeriodic();
-         }
+            components[i].autonomousPeriodic();
+        }
     }
-
 
     public void disabledInit() {
         for (int i = 0; i < components.length; i++) {
-         components[i].disabledInit();
-         }
+            components[i].disabledInit();
+        }
     }
 
     public void disabledPeriodic() {
         for (int i = 0; i < components.length; i++) {
-         components[i].disabledPeriodic();
-         }
+            components[i].disabledPeriodic();
+        }
     }
 
     public void teleopInit() {
-        isArmFrozen = false;
-        for (int i = 0; i < components.length; i++) { 
-         components[i].teleopInit();
-         }
-        cameraComp.teleopInit();
+        for (int i = 0; i < components.length; i++) {
+            components[i].teleopInit();
+        }
+        //cameraComp.teleopInit();
     }
 
     public void teleopPeriodic() {
-        if (grabButton.get() && releaseButton.get() && freezeButton1.get() && freezeButton2.get()){
-            isArmFrozen = true;
+        for (int i = 0; i < components.length; i++) {
+            components[i].teleopPeriodic();
         }
-        for (int i = 0; i < components.length; i++) { 
-         components[i].teleopPeriodic();
-         }
-        cameraComp.teleopPeriodic();
+        //cameraComp.teleopPeriodic();
     }
 
     public static LaunchComponent getLaunchComponent() {
         return launchComp;
     }
-    
+
     public static DriveComponent getDriveComponent() {
         return driveComp;
     }
-    
+
     public static LiftComponent getLiftComponent() {
         return liftComp;
     }
-    
+
     public static GrabComponent getGrabComponent() {
         return grabComp;
     }
-    
-    public static CameraComponent getCameraComponent() {
-        return cameraComp;
-    }
-    
-    public static Gyro getGyro(){
+
+//    public static CameraComponent getCameraComponent() {
+//        return cameraComp;
+//    }
+    public static Gyro getGyro() {
         return gyro;
     }
-    
-    public static boolean getArmFrozen(){
-        return isArmFrozen;
-    }
-    
-    static boolean getManualMode() {
-        //throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        return isManualMode;
-    }
+
 }
