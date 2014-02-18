@@ -1,109 +1,84 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.wpi.first.wpilibj.templates;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.ADXL345_I2C;
+import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
-A
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.can.CANTimeoutException;
+
 /**
  *
- * @author 1SRJ
+ * @author milo
  */
-public class GrabComponent implements RobotComponent {
+//
+public class DriveComponent implements RobotComponent {
+    // Put methods for controlling this subsystem
+    // here. Call these from Commands.
 
-    private Joystick jStick;
-    private JoystickButton grabButton; // button
-    private JoystickButton releaseButton; //button 
-    private Victor grabberVictor;
-    private DigitalInput grabberLimitSwitch; 
-    public static final int NEUTRAL = 1; 
-    public static final int GRABBING = 2; 
-    public static final int RELEASING = 3; 
-    private static int currentState = NEUTRAL;        
-    
-    public GrabComponent(Joystick j, JoystickButton jb1, JoystickButton jb2, Victor v, DigitalInput g){
-        jStick = j;
-        grabButton = jb1;
-        releaseButton = jb2;
-        grabberVictor = v;
-        grabberLimitSwitch = g; 
-        currentState = NEUTRAL;
-        
+    private RobotDrive drive;
+    private Joystick dStick;
+    private CANJaguar fljag;  //Front Left Wheel Jag
+    private CANJaguar rljag; //Rear Left Wheel Jag
+    private CANJaguar frjag; //Front Right Wheel Jag
+    private CANJaguar rrjag; //Rear Right Wheel Jag
+    private ADXL345_I2C accel;
+    private Servo testDriveServo;
+    private double accelerationX;
+    private double accelerationY;
+    private double accelerationZ;
+    ADXL345_I2C.AllAxes accelerations;
+
+    public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
+        dStick = j;
+        fljag = jag2;
+        rljag = jag3;
+        frjag = jag4;
+        rrjag = jag5;
+        accel = a;
+        drive = new RobotDrive(fljag, rljag, frjag, rrjag);
+        drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+        drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+        testDriveServo = s;
     }
 
-    public void autonomousInit() {
-        System.out.println("Grab Component initialized for autonomous"); 
-        
-    }
-    
     public void autonomousPeriodic() {
-        grabberVictor.set(-1);
-    }
-
-    public void teleopInit() {
-        System.out.println("Grab Component initialized for teleop");
-        currentState = NEUTRAL;
-
+        try {
+            fljag.setX(1);
+            rljag.setX(1);
+            frjag.setX(1);
+            rrjag.setX(1);
+            Timer.delay(2);
+            fljag.setX(0);
+            rljag.setX(0);
+            frjag.setX(0);
+            rrjag.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void teleopPeriodic() {
-        
-//        boolean isGrabPressed = grabButton.get();
-//        boolean isReleasePressed = releaseButton.get();
-//        if(isGrabPressed){
-//            vMotor.set(-1.0);
-//        }else if(isReleasePressed){
-//            vMotor.set(1.0);
-//        }else{
-//            vMotor.set(0.0);
-//        } 
-        boolean isGrabPressed = grabButton.get();
-        boolean isReleasePressed = releaseButton.get();
-        boolean isLaunching = RobotRunner.getLaunchComponent().isLaunching();
-        boolean ballHeld = !grabberLimitSwitch.get();
-        
-        System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
-        switch(currentState) {
-            case NEUTRAL: 
-                grabberVictor.set(0.0);
-                if(isGrabPressed){
-                    currentState = GRABBING;
-                }
-                if(isReleasePressed || isLaunching) {
-                    currentState = RELEASING; 
-                }
-                break;
-            case GRABBING:
-                if(!ballHeld) {
-                    grabberVictor.set(-1.0); 
-                } else {
-                    grabberVictor.set(0.0);
-                }
-                if(!isGrabPressed) {
-                    currentState = NEUTRAL; 
-                }
-                if(isReleasePressed || isLaunching) {
-                    currentState = RELEASING; 
-                }
-                break;
-            case RELEASING:
-                grabberVictor.set(1.0);
-                if(!isReleasePressed && !isLaunching) {
-                    currentState = NEUTRAL; 
-                }
-                break;
-        }
-    }
-    
-    public void disabledInit() {
+        drive.mecanumDrive_Cartesian(-dStick.getY(), dStick.getX(),-dStick.getTwist(), RobotRunner.getGyro().getAngle() - 90);//Fixing Forward, Backward, and Twisting
+        testDriveServo.set(dStick.getThrottle());
+        System.out.println(testDriveServo.get());
     }
 
     public void disabledPeriodic() {
     }
 
+//    @Override
+    public void autonomousInit() {
+        System.out.println("Drive Component initialized for autonomous");
+    }
+
+//    @Override
+    public void disabledInit() {
+    }
+
+//    @Override
+    public void teleopInit() {
+        System.out.println("Drive Component initialized for teleop");
+    }
 }
