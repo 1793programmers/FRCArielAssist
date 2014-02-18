@@ -27,9 +27,14 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  */
 public class RobotRunner extends IterativeRobot {
 
+    
+
     private final boolean testBoard = false; // which JAG IDs to load
+    private static boolean isArmFrozen = false;
+    private static boolean isManualMode = false;
     //DRIVE FIELDS BELOW!
     private Joystick driveJoystick;
+    private JoystickButton resetGyroButton;
     private CANJaguar fljag;  //Front Left Wheel Jag
     private CANJaguar rljag; //Rear Left Wheel Jag
     private CANJaguar frjag; //Front Right Wheel Jag
@@ -39,10 +44,13 @@ public class RobotRunner extends IterativeRobot {
     //ARM FIELDS BELOW!
     private Joystick armJoystick;
     private JoystickButton resetButton; 
-    private JoystickButton launchButton;
-    private JoystickButton retractButton;
+    private JoystickButton autoLaunchButton;
     private JoystickButton grabButton; //4 on left side of joy, 5 on right side. in <-- out -->
     private JoystickButton releaseButton;
+    private static JoystickButton armModeChange;
+    private JoystickButton manualLaunchButton;
+    private JoystickButton freezeButton1;
+    private JoystickButton freezeButton2;
     private Victor liftVictor;
     private Victor grabVictor;
     private Victor launchVictor;
@@ -50,7 +58,8 @@ public class RobotRunner extends IterativeRobot {
     //SWITCHES BELOW!
     private DigitalInput gFLimitSwitch;
     private DigitalInput gBLimitSwitch;
-    private DigitalInput launchLimitSwitch;
+    private DigitalInput forwardLaunchLimitSwitch;
+    private DigitalInput backwardLaunchLimitSwitch; 
     private DigitalInput grabberLimitSwitch;
     //CAMERA BELOW
     private AxisCamera camera;
@@ -61,6 +70,9 @@ public class RobotRunner extends IterativeRobot {
     private static LiftComponent liftComp;
     private static CameraComponent cameraComp;
     private RobotComponent[] components = new RobotComponent[4];
+    
+
+    
 
     /**
      * This function is run when the robot is first started up and should be
@@ -72,18 +84,24 @@ public class RobotRunner extends IterativeRobot {
         gyro = new Gyro(1);
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
         armJoystick = new Joystick(2);
-        resetButton = new JoystickButton(armJoystick, 11); 
-        launchButton = new JoystickButton(armJoystick, 1);
-        retractButton = new JoystickButton(armJoystick, 2);
-        grabButton = new JoystickButton(armJoystick, 4);
-        releaseButton = new JoystickButton(armJoystick, 5);
+        resetGyroButton = new JoystickButton(driveJoystick, 2);
+        resetButton = new JoystickButton(armJoystick, 9); 
+        autoLaunchButton = new JoystickButton(armJoystick, 2);
+        manualLaunchButton = new JoystickButton(armJoystick, 1);
+        armModeChange = new JoystickButton(armJoystick, 10);
+        grabButton = new JoystickButton(armJoystick, 5);
+        releaseButton = new JoystickButton(armJoystick, 7);
+        freezeButton1 = new JoystickButton(armJoystick, 6);
+        freezeButton2 = new JoystickButton(armJoystick, 8);
+        
         grabVictor = new Victor(1);
         launchVictor = new Victor(2);
         liftVictor = new Victor(3);
         gFLimitSwitch = new DigitalInput(1);
         gBLimitSwitch = new DigitalInput(2);
-        launchLimitSwitch = new DigitalInput(3);
-        grabberLimitSwitch = new DigitalInput(4);
+        forwardLaunchLimitSwitch = new DigitalInput(3);
+        backwardLaunchLimitSwitch = new DigitalInput(4);
+        grabberLimitSwitch = new DigitalInput(5);
         launchServo = new Servo(10);
         camera = AxisCamera.getInstance("192.168.0.90");
 
@@ -103,9 +121,9 @@ public class RobotRunner extends IterativeRobot {
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel);
+        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel, launchServo);
         grabComp = new GrabComponent(armJoystick, grabButton, releaseButton, grabVictor, grabberLimitSwitch);
-        launchComp = new LaunchComponent(armJoystick, launchButton, retractButton, launchVictor, launchLimitSwitch, launchServo);
+        launchComp = new LaunchComponent(armJoystick, autoLaunchButton, manualLaunchButton, launchVictor, forwardLaunchLimitSwitch, backwardLaunchLimitSwitch, launchServo);
         liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, resetButton);
         cameraComp = new CameraComponent(camera);
         // Collect components
@@ -146,6 +164,7 @@ public class RobotRunner extends IterativeRobot {
     }
 
     public void teleopInit() {
+        isArmFrozen = false;
         for (int i = 0; i < components.length; i++) { 
          components[i].teleopInit();
          }
@@ -153,6 +172,9 @@ public class RobotRunner extends IterativeRobot {
     }
 
     public void teleopPeriodic() {
+        if (grabButton.get() && releaseButton.get() && freezeButton1.get() && freezeButton2.get()){
+            isArmFrozen = true;
+        }
         for (int i = 0; i < components.length; i++) { 
          components[i].teleopPeriodic();
          }
@@ -182,5 +204,13 @@ public class RobotRunner extends IterativeRobot {
     public static Gyro getGyro(){
         return gyro;
     }
-
+    
+    public static boolean getArmFrozen(){
+        return isArmFrozen;
+    }
+    
+    static boolean getManualMode() {
+        //throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return isManualMode;
+    }
 }
