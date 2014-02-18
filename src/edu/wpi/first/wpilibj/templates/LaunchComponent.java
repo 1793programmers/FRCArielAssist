@@ -5,6 +5,7 @@
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 public class LaunchComponent implements RobotComponent {
 
     // control inputs
+    private Joystick armJoystick;
     private JoystickButton automaticButton;
     private JoystickButton latchButton;
     private JoystickButton cockButton;
@@ -40,7 +42,7 @@ public class LaunchComponent implements RobotComponent {
     private static int currentState;
     // class constants
     private static final double UNLATCH_POSITION = 0.0;
-    private static final double LATCH_POSITION = 0.6425531914893617; //0.225531914893617
+    private static final double LATCH_POSITION = 0.17; //-0.225531914893617;
     private static final double TIMEOUT_DELAY = 1.0;
     public static final int NEUTRAL = 1;
     public static final int MANUAL_LATCHING = 2;
@@ -69,6 +71,9 @@ public class LaunchComponent implements RobotComponent {
         latchLimitSwitch = fwdLimit;
         cockLimitSwitch = backLimit;
         latchServo = servo;
+
+        armJoystick = new Joystick(2);
+
         timer = new Timer();
         currentState = NEUTRAL;
     }
@@ -79,16 +84,19 @@ public class LaunchComponent implements RobotComponent {
 
     public void autonomousPeriodic() {
         // TODO something useful
+        //latchServo.set(armJoytick.getY());
     }
 
     public void teleopInit() {
         System.out.println("Launch Component initialized for teleop");
         currentState = NEUTRAL;
         isFrozen = false;
+        latchServo.set(LATCH_POSITION);
     }
 
     public void teleopPeriodic() {
-        printState();
+        //printState();
+        System.out.println(latchServo.get());
         if (freezeButton.get()) {
             System.out.println("Freeze button pressed");
             isFrozen = true;
@@ -99,6 +107,7 @@ public class LaunchComponent implements RobotComponent {
         if (isFrozen) {
             System.out.println("Launcher Frozen");
             launcherVictor.set(0.0);
+            latchServo.set(LATCH_POSITION);
         } else {
             // collect sensor information, update latched/cocked
             boolean isLatchLimitSwitchClosed = !latchLimitSwitch.get();
@@ -233,9 +242,9 @@ public class LaunchComponent implements RobotComponent {
     public int getState() {
         return currentState;
     }
-    
-    private void printState(){
+
+    private void printState() {
         System.out.println("Launcher state: " + currentState + " Latched: " + isLatched + " Cocked: " + isCocked + " Frozen: " + isFrozen + " Automatic: " + isAutomatic);
-        
+
     }
 }
