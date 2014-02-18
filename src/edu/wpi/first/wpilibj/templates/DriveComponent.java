@@ -1,120 +1,84 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.wpi.first.wpilibj.templates;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.ADXL345_I2C;
+import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
 /**
  *
- * @author 1SRJ
+ * @author milo
  */
-public class GrabComponent implements RobotComponent {
+//
+public class DriveComponent implements RobotComponent {
+    // Put methods for controlling this subsystem
+    // here. Call these from Commands.
 
-    private JoystickButton grabButton; // button
-    private JoystickButton shootButton;
-    private JoystickButton passButton; //button 
-    private Victor grabberVictor;
-    private DigitalInput grabberLimitSwitch;
-    public static final int NEUTRAL = 1;
-    public static final int GRABBING = 2;
-    public static final int PASSING = 3;
-    private static int currentState = NEUTRAL;
-    private Timer timer;
-    private static final int TIMEOUT_DELAY = 1;
+    private RobotDrive drive;
+    private Joystick dStick;
+    private CANJaguar fljag;  //Front Left Wheel Jag
+    private CANJaguar rljag; //Rear Left Wheel Jag
+    private CANJaguar frjag; //Front Right Wheel Jag
+    private CANJaguar rrjag; //Rear Right Wheel Jag
+    private ADXL345_I2C accel;
+    private Servo testDriveServo;
+    private double accelerationX;
+    private double accelerationY;
+    private double accelerationZ;
+    ADXL345_I2C.AllAxes accelerations;
 
-    public GrabComponent(JoystickButton jb1, JoystickButton jb2, JoystickButton jb3, Victor v, DigitalInput g) {
-        grabButton = jb1;
-        shootButton = jb2;
-        passButton = jb3;
-        grabberVictor = v;
-        grabberLimitSwitch = g;
-        currentState = NEUTRAL;
-        timer = new Timer();
-
-    }
-
-    public void autonomousInit() {
-        System.out.println("Grab Component initialized for autonomous");
-
+    public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
+        dStick = j;
+        fljag = jag2;
+        rljag = jag3;
+        frjag = jag4;
+        rrjag = jag5;
+        accel = a;
+        drive = new RobotDrive(fljag, rljag, frjag, rrjag);
+        drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+        drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+        testDriveServo = s;
     }
 
     public void autonomousPeriodic() {
-        grabberVictor.set(-1);
-    }
-
-    public void teleopInit() {
-        System.out.println("Grab Component initialized for teleop");
-        currentState = NEUTRAL;
-
-    }
-
-    public void teleopPeriodic() {
-
-//        boolean isGrabPressed = grabButton.get();
-//        boolean isReleasePressed = passButton.get();
-//        if(isGrabPressed){
-//            vMotor.set(-1.0);
-//        }else if(isReleasePressed){
-//            vMotor.set(1.0);
-//        }else{
-//            vMotor.set(0.0);
-//        } 
-        boolean isGrabPressed = grabButton.get();
-        boolean isReleasePressed = passButton.get();
-        boolean isLaunching = (RobotRunner.getLaunchComponent().getState() == LaunchComponent.LAUNCHING);
-        boolean ballHeld = !grabberLimitSwitch.get();
-
-        //System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
-        switch (currentState) {
-            case NEUTRAL:
-                grabberVictor.set(0.0);
-                if (isGrabPressed) {
-                    currentState = GRABBING;
-                }
-                if (isReleasePressed || isLaunching) {
-                    timer.reset();
-                    timer.start();
-                    currentState = PASSING;
-                }
-                break;
-            case GRABBING:
-                if (!ballHeld) {
-                    grabberVictor.set(-1.0);
-                } else {
-                    grabberVictor.set(0.0);
-                }
-                if (!isGrabPressed) {
-                    currentState = NEUTRAL;
-                }
-                if (isReleasePressed || isLaunching) {
-                    timer.reset();
-                    timer.start();
-                    currentState = PASSING;
-                }
-                break;
-            case PASSING:
-                //timer.start();
-                if (timer.get() > TIMEOUT_DELAY) {
-                    grabberVictor.set(0.0);
-                    timer.stop();
-                    currentState = NEUTRAL;
-                    break;
-                }
-                grabberVictor.set(1.0);
-                break;
+        try {
+            fljag.setX(1);
+            rljag.setX(1);
+            frjag.setX(1);
+            rrjag.setX(1);
+            Timer.delay(2);
+            fljag.setX(0);
+            rljag.setX(0);
+            frjag.setX(0);
+            rrjag.setX(0);
+        } catch (CANTimeoutException ex) {
+            ex.printStackTrace();
         }
     }
 
-    public void disabledInit() {
+    public void teleopPeriodic() {
+        drive.mecanumDrive_Cartesian(-dStick.getY(), dStick.getX(),-dStick.getTwist(), RobotRunner.getGyro().getAngle() - 90);//Fixing Forward, Backward, and Twisting
+        testDriveServo.set(dStick.getThrottle());
+        System.out.println(testDriveServo.get());
     }
 
     public void disabledPeriodic() {
+    }
+
+//    @Override
+    public void autonomousInit() {
+        System.out.println("Drive Component initialized for autonomous");
+    }
+
+//    @Override
+    public void disabledInit() {
+    }
+
+//    @Override
+    public void teleopInit() {
+        System.out.println("Drive Component initialized for teleop");
     }
 }
