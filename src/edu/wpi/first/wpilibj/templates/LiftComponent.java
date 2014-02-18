@@ -47,7 +47,6 @@ public class LiftComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
-
     }
 
     public void teleopInit() {
@@ -56,84 +55,27 @@ public class LiftComponent implements RobotComponent {
     }
 
     public void teleopPeriodic() {
-
-        /* boolean isFLimitOpen = fLimitSwitch.get();  
-         boolean isBLimitOpen = bLimitSwitch.get(); 
-         double armSignal = armStick.getY(); //vertical axis of joystick 
-         if(armSignal < 0) { //move reverse
-         if(isFLimitOpen) { 
-         armVictor.set(-armSignal); //clockwise is negative
-         System.out.println(armVictor.get()); //shows pwm value 
-         } else { 
-         armVictor.set(0); 
-         }
-         } else if (armSignal > 0){//move forward
-         if(isBLimitOpen) {
-         armVictor.set(-armSignal); //ccw is positive
-         } else {
-         armVictor.set(0); 
-         }
-         } else {
-         armVictor.set(0);
-         }
+        boolean isForwardLimitSwitchShut = !fLimitSwitch.get();
+        boolean isBackwardLimitSwitchShut = !bLimitSwitch.get();
         
-         }
-         */
-        
-        boolean isFLimitOpen = fLimitSwitch.get();
-        boolean isBLimitOpen = bLimitSwitch.get();
-        boolean isResetPressed = resetButton.get();
+        armVictor.set(0.0);
         double armSignal = armStick.getThrottle();
-        switch (currentState) {
-            case NEUTRAL:
-                armVictor.set(0);
-                if (armSignal < 0) {
-                    currentState = RETRACTING;
-                }
-                if (armSignal > 0) {
-                    currentState = DEPLOYING;
-                }
-                if (isResetPressed) {
-                    currentState = RESETTING;
-                }
-                break;
-            case DEPLOYING:
+        
+        if (armSignal < -0.1) { // Retracting Backward
+            System.out.println("Moving Arm Backwards");
+            if (!isBackwardLimitSwitchShut) {
                 armVictor.set(-armSignal);
-                if (!isFLimitOpen || armSignal == 0) {
-                    currentState = NEUTRAL;
-                }
-                if (armSignal < 0) {
-                    currentState = RETRACTING;
-                }
-                if (isResetPressed) {
-                    currentState = RESETTING;
-                }
-                break;
-            case RETRACTING:
+            }
+
+        } else if (armSignal >0.1) { // Retracting backward
+            System.out.println("Moving Arm Forward");
+            if (!isForwardLimitSwitchShut) {
                 armVictor.set(-armSignal);
-                if (!isBLimitOpen) {
-                    currentState = NEUTRAL;
-                }
-                if (armSignal > 0) {
-                    currentState = DEPLOYING;
-                }
-                if (isResetPressed) {
-                    currentState = RESETTING;
-                }
-
-                break;
-            case RESETTING:
-                armVictor.set(1);
-                if (!isFLimitOpen) {
-                    currentState = NEUTRAL;
-                }
-
-                break;
+            }
         }
     }
 
     public void disabledInit() {
-
     }
 
     public void disabledPeriodic() {
