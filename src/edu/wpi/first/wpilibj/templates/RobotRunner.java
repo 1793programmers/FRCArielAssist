@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj.can.CANTimeoutException;
  */
 public class RobotRunner extends IterativeRobot {
 
-    private final boolean testBoard = false; // which JAG IDs to load
+    private final boolean testBoard = true; // which JAG IDs to load
     //DRIVE FIELDS BELOW!
     private Joystick driveJoystick;
     private JoystickButton resetGyroButton;
@@ -75,8 +75,9 @@ public class RobotRunner extends IterativeRobot {
         //Jag instantiations below
         driveJoystick = new Joystick(1);
         gyro = new Gyro(1);
+        //gyro.setSensitivity(.0125);
         accel = new ADXL345_I2C(1, ADXL345_I2C.DataFormat_Range.k2G);
-        resetGyroButton = new JoystickButton(driveJoystick, 2);
+        resetGyroButton = new JoystickButton(driveJoystick, 6);
 
         // arm stick buttons
         armJoystick = new Joystick(2);
@@ -110,12 +111,13 @@ public class RobotRunner extends IterativeRobot {
                 rljag = new CANJaguar(11); //Rear Left Wheel Jag
                 frjag = new CANJaguar(12); //Front Right Wheel Jag
                 rrjag = new CANJaguar(7); //Rear Right Wheel Jag
+                System.out.println("Jags Initialized!");
             }
 
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
-        driveComp = new DriveComponent(driveJoystick, fljag, rljag, frjag, rrjag, accel, triggerServo);
+        driveComp = new DriveComponent(driveJoystick, resetGyroButton, fljag, rljag, frjag, rrjag, accel, triggerServo);
         grabComp = new GrabComponent(grabButton, shootButton, passButton, grabVictor, grabberLimitSwitch);
         launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, forwardLaunchLimitSwitch, backwardLaunchLimitSwitch, triggerServo);
         liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, grabButton);
