@@ -41,8 +41,8 @@ public class LaunchComponent implements RobotComponent {
     private static double moveToCock = 1.0;
     private static int currentState;
     // class constants
-    private static final double UNLATCH_POSITION = 0.0;
-    private static final double LATCH_POSITION = 0.17; //-0.225531914893617;
+    private static final double UNLATCH_POSITION = 0.05; //-0.225531914893617;
+    private static final double LATCH_POSITION = 1.0;
     private static final double TIMEOUT_DELAY = 1.0;
     public static final int NEUTRAL = 1;
     public static final int MANUAL_LATCHING = 2;
@@ -244,7 +244,7 @@ public class LaunchComponent implements RobotComponent {
     }
 
     private void printState() {
-        System.out.println("Launcher state: " + currentState + " Latched: " + isLatched + " Cocked: " + isCocked + " Frozen: " + isFrozen + " Automatic: " + isAutomatic);
+        System.out.println("Launcher state: " + currentState + " Latched: " + isLatched + " Cocked: " + isCocked + " Frozen: " + isFrozen + " Automatic: " + isAutomatic+"Servo ="+latchServo.get());
 
     }
 }
