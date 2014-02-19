@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
 /**
@@ -19,6 +20,7 @@ public class DriveComponent implements RobotComponent {
 
     private RobotDrive drive;
     private Joystick dStick;
+    private JoystickButton resetGyroButton;
     private CANJaguar fljag;  //Front Left Wheel Jag
     private CANJaguar rljag; //Rear Left Wheel Jag
     private CANJaguar frjag; //Front Right Wheel Jag
@@ -30,8 +32,9 @@ public class DriveComponent implements RobotComponent {
     private double accelerationZ;
     ADXL345_I2C.AllAxes accelerations;
 
-    public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
+    public DriveComponent(Joystick j, JoystickButton jb1, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
         dStick = j;
+        resetGyroButton = jb1;
         fljag = jag2;
         rljag = jag3;
         frjag = jag4;
@@ -60,9 +63,13 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void teleopPeriodic() {
-        drive.mecanumDrive_Cartesian(-dStick.getY(), dStick.getX(),-dStick.getTwist(), RobotRunner.getGyro().getAngle() - 90);//Fixing Forward, Backward, and Twisting
-        testDriveServo.set(dStick.getThrottle());
-        System.out.println(testDriveServo.get());
+        drive.mecanumDrive_Cartesian(-dStick.getX() * .5,-dStick.getY() * .5, -dStick.getTwist() * .5, RobotRunner.getGyro().getAngle());//Fixing Forward, Backward, and Twisting
+        //testDriveServo.set(dStick.getThrottle());
+        if (resetGyroButton.get()){
+            RobotRunner.getGyro().reset();
+        }
+        //System.out.println(testDriveServo.get());
+        System.out.println("Gyro Angle ="+RobotRunner.getGyro().getAngle());
     }
 
     public void disabledPeriodic() {
