@@ -7,16 +7,20 @@
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.ADXL345_I2C;
+import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.camera.AxisCamera;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -52,20 +56,22 @@ public class RobotRunner extends IterativeRobot {
     private Victor launchVictor;
     private Servo triggerServo;
     //SWITCHES BELOW!
-    private DigitalInput gFLimitSwitch;
-    private DigitalInput gBLimitSwitch;
-    private DigitalInput forwardLaunchLimitSwitch;
-    private DigitalInput backwardLaunchLimitSwitch;
-    private DigitalInput grabberLimitSwitch;
+    private static DigitalInput forwardLiftLimitSwitch;
+    private static DigitalInput backwardLiftLimitSwitch;
+    private static DigitalInput forwardLaunchLimitSwitch;
+    private static DigitalInput backwardLaunchLimitSwitch;
+    private static DigitalInput grabberLimitSwitch;
+    private static AnalogChannel ultrasonicDetector;
     //CAMERA BELOW
-    //private AxisCamera camera;
+    private AxisCamera camera;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
     private static DriveComponent driveComp;
     private static GrabComponent grabComp;
     private static LaunchComponent launchComp;
     private static LiftComponent liftComp;
-    //private static CameraComponent cameraComp;
-    private RobotComponent[] components = new RobotComponent[4];
+    private static UltrasonicComponent ultrasonicComp;
+    private static CameraComponent cameraComp;
+    private RobotComponent[] components = new RobotComponent[5];
 
     /**
      * This function is run when the robot is first started up and should be
@@ -92,14 +98,13 @@ public class RobotRunner extends IterativeRobot {
         grabVictor = new Victor(1);
         launchVictor = new Victor(2);
         liftVictor = new Victor(3);
-        gFLimitSwitch = new DigitalInput(1);
-        gBLimitSwitch = new DigitalInput(2);
+        forwardLiftLimitSwitch = new DigitalInput(6);
+        backwardLiftLimitSwitch = new DigitalInput(2);
         forwardLaunchLimitSwitch = new DigitalInput(3);
         backwardLaunchLimitSwitch = new DigitalInput(4);
         grabberLimitSwitch = new DigitalInput(5);
-        triggerServo = new Servo(10);
-        //camera = AxisCamera.getInstance("192.168.0.90");
-
+        triggerServo = new Servo(9);
+        ultrasonicDetector = new AnalogChannel(7);
         try {
             if (testBoard) {
                 fljag = new CANJaguar(2); //Front Left Wheel Jag
@@ -113,21 +118,24 @@ public class RobotRunner extends IterativeRobot {
                 rrjag = new CANJaguar(7); //Rear Right Wheel Jag
                 System.out.println("Jags Initialized!");
             }
-
+            camera = AxisCamera.getInstance();
+            System.out.println(camera.toString());
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
         driveComp = new DriveComponent(driveJoystick, resetGyroButton, fljag, rljag, frjag, rrjag, accel, triggerServo);
-        grabComp = new GrabComponent(grabButton, shootButton, passButton, grabVictor, grabberLimitSwitch);
-        launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, forwardLaunchLimitSwitch, backwardLaunchLimitSwitch, triggerServo);
-        liftComp = new LiftComponent(armJoystick, liftVictor, gFLimitSwitch, gBLimitSwitch, grabButton);
-        //cameraComp = new CameraComponent(camera);
+        grabComp = new GrabComponent(grabButton, shootButton, passButton, grabVictor, getGrabberLimitSwitch());
+        launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, getLauncherForwardLimitSwitch(), getLauncherBackLimitSwitch(), triggerServo);
+        liftComp = new LiftComponent(armJoystick, liftVictor, getLiftForwardLimitSwitch(), getLiftBackLimitSwitch(), grabButton);
+        ultrasonicComp = new UltrasonicComponent();
+        cameraComp = new CameraComponent(camera);
         // Collect 
         components[0] = driveComp;
         components[1] = grabComp;
         components[2] = launchComp;
         components[3] = liftComp;
-        // components[4] = cameraComp;
+        components[4] = cameraComp;
+        // updateSmartDashboard();
 
     }
 
@@ -144,6 +152,7 @@ public class RobotRunner extends IterativeRobot {
         for (int i = 0; i < components.length; i++) {
             components[i].autonomousPeriodic();
         }
+        updateSmartDashboard();
     }
 
     public void disabledInit() {
@@ -156,6 +165,7 @@ public class RobotRunner extends IterativeRobot {
         for (int i = 0; i < components.length; i++) {
             components[i].disabledPeriodic();
         }
+        updateSmartDashboard();
     }
 
     public void teleopInit() {
@@ -170,6 +180,7 @@ public class RobotRunner extends IterativeRobot {
             components[i].teleopPeriodic();
         }
         //cameraComp.teleopPeriodic();
+        updateSmartDashboard();
     }
 
     public static LaunchComponent getLaunchComponent() {
@@ -195,4 +206,71 @@ public class RobotRunner extends IterativeRobot {
         return gyro;
     }
 
+    /**
+     * @return the forwardLiftLimitSwitch
+     */
+    public static DigitalInput getLiftForwardLimitSwitch() {
+        return forwardLiftLimitSwitch;
+    }
+
+    /**
+     * @return the backwardLiftLimitSwitch
+     */
+    public static DigitalInput getLiftBackLimitSwitch() {
+        return backwardLiftLimitSwitch;
+    }
+
+    /**
+     * @return the forwardLaunchLimitSwitch
+     */
+    public static DigitalInput getLauncherForwardLimitSwitch() {
+        return forwardLaunchLimitSwitch;
+    }
+
+    /**
+     * @return the backwardLaunchLimitSwitch
+     */
+    public static DigitalInput getLauncherBackLimitSwitch() {
+        return backwardLaunchLimitSwitch;
+    }
+
+    /**
+     * @return the grabberLimitSwitch
+     */
+    public static DigitalInput getGrabberLimitSwitch() {
+        return grabberLimitSwitch;
+    }
+
+    public static AnalogChannel getUltrasonicSensor() {
+        return ultrasonicDetector;
+    }
+
+    protected void updateSmartDashboard() {
+        SmartDashboard.putNumber("Lift Signal", liftVictor.get());
+        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
+        int liftState = liftComp.getCurrentState();
+        SmartDashboard.putBoolean("Lift at Forward Limit", forwardLiftLimitSwitch.get());
+        SmartDashboard.putBoolean("Lift at Rear Limit", backwardLiftLimitSwitch.get());
+        SmartDashboard.putBoolean("NEUTRAL_LIFT", liftState==LiftComponent.NEUTRAL);
+        SmartDashboard.putBoolean("DEPLOYING", liftState==LiftComponent.DEPLOYING);
+        SmartDashboard.putBoolean("RETRACTING", liftState==LiftComponent.RETRACTING);
+        SmartDashboard.putNumber("Launcher Signal", launchVictor.get());
+        SmartDashboard.putBoolean("Launcher Forward Limit", forwardLaunchLimitSwitch.get());
+        SmartDashboard.putBoolean("Launcher Rear Limit", backwardLaunchLimitSwitch.get());
+        int launcherState = launchComp.getCurrentState();
+        SmartDashboard.putBoolean("NEUTRAL_LAUNCHER", launcherState==LaunchComponent.NEUTRAL);
+        SmartDashboard.putBoolean("MANUAL_LATCH", launcherState==LaunchComponent.MANUAL_LATCHING);
+        SmartDashboard.putBoolean("MANUAL_COCK", launcherState==LaunchComponent.MANUAL_COCKING);
+        SmartDashboard.putBoolean("AUTO_LATCH", launcherState==LaunchComponent.AUTO_LATCHING);
+        SmartDashboard.putBoolean("AUTO_COCK", launcherState==LaunchComponent.AUTO_COCKING);
+        SmartDashboard.putBoolean("LAUNCHING", launcherState==LaunchComponent.LAUNCHING);
+        SmartDashboard.putBoolean("Grabbing Ball Detector", grabberLimitSwitch.get());
+        int grabberState = grabComp.getCurrentState();
+        SmartDashboard.putBoolean("NEUTRAL_GRABBER", grabberState==GrabComponent.NEUTRAL);
+        SmartDashboard.putBoolean("GRABBING", grabberState==GrabComponent.GRABBING);
+        SmartDashboard.putBoolean("PASSING", grabberState==GrabComponent.PASSING);
+        SmartDashboard.putNumber("Grabber Signal", grabVictor.get());
+        SmartDashboard.putNumber("Range Finder Inches ", ultrasonicComp.getRangeInches());
+        SmartDashboard.putNumber("Range Finder Feet ", ultrasonicComp.getRangeInches() / 12);
+    }
 }
