@@ -5,6 +5,7 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,13 +23,15 @@ public class GrabComponent implements RobotComponent {
     private JoystickButton passButton; //button 
     private Victor grabberVictor;
     private DigitalInput grabberLimitSwitch;
+    private AnalogChannel ultrasonic = RobotRunner.getUltrasonicSensor();
     public static final int NEUTRAL = 1;
     public static final int GRABBING = 2;
     public static final int PASSING = 3;
     private static int currentState = NEUTRAL;
     private Timer timer;
     private static final int TIMEOUT_DELAY = 1;
-
+    //for now, if ultrasonic sensor returns 7 feet in autonomous, launch with a timer delay to stop (can be anywhere btwn 0 & 2 seconds)
+    
     public GrabComponent(JoystickButton jb1, JoystickButton jb2, JoystickButton jb3, Victor v, DigitalInput g) {
         grabButton = jb1;
         shootButton = jb2;
@@ -46,7 +49,34 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
-        grabberVictor.set(-1);
+        boolean isLaunching = (RobotRunner.getLaunchComponent().getCurrentState() == LaunchComponent.LAUNCHING);
+        boolean ballHeld = !grabberLimitSwitch.get();
+        switch(currentState) {
+            case NEUTRAL:
+                grabberVictor.set(0.0);
+                break;
+            case GRABBING:
+                if (!ballHeld) {
+                    grabberVictor.set(-1.0);
+                } else {
+                    grabberVictor.set(0.0);
+                }
+                if (isLaunching) {
+                    timer.reset();
+                    timer.start();
+                    currentState = PASSING;
+                }
+                break;
+            case PASSING:
+                if (timer.get() > TIMEOUT_DELAY) {
+                    grabberVictor.set(0.0);
+                    timer.stop();
+                    currentState = NEUTRAL;
+                    break;
+                }
+                grabberVictor.set(1.0);
+                break; 
+        }
     }
 
     public void teleopInit() {
@@ -68,7 +98,7 @@ public class GrabComponent implements RobotComponent {
 //        } 
         boolean isGrabPressed = grabButton.get();
         boolean isReleasePressed = passButton.get();
-        boolean isLaunching = (RobotRunner.getLaunchComponent().getState() == LaunchComponent.LAUNCHING);
+        boolean isLaunching = (RobotRunner.getLaunchComponent().getCurrentState() == LaunchComponent.LAUNCHING);
         boolean ballHeld = !grabberLimitSwitch.get();
 
         //System.out.println("State: "+ currentState + " Ball Held: "+ballHeld);
@@ -116,5 +146,9 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void disabledPeriodic() {
+    }
+    
+    public int getCurrentState(){
+        return currentState;
     }
 }
