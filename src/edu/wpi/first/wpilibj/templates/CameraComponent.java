@@ -13,26 +13,16 @@ import edu.wpi.first.wpilibj.image.ColorImage;
 public class CameraComponent implements RobotComponent {
 
     AxisCamera camera; //Camera
-    private int imageWidth;//width of image
-    //DriverStation dS = DriverStation.getInstance();
     ColorImage image;
 
     public CameraComponent(AxisCamera c) {
-        // Set the default command for a subsystem here.
-        //setDefaultCommand(new MySpecialCommand());
-
         camera = c;
-        camera.writeMaxFPS(5);
-        camera.writeResolution(AxisCamera.ResolutionT.k160x120);
-        camera.writeCompression(20);
-        camera.writeBrightness(0);
+        camera.writeBrightness(60);
         System.out.println("Camera Activated");
     }
 
     public void autonomousPeriodic() {
-        if (camera.getBrightness() == 100) {
-            //shoot!
-        }
+
     }
 
     public void teleopPeriodic() {
@@ -46,10 +36,6 @@ public class CameraComponent implements RobotComponent {
                 ex.printStackTrace();
             }
         }
-
-        //camera.writeRotation(AxisCamera.RotationT.k180);
-        System.out.println(camera.getBrightness());
-        DriverStationLCD.getInstance().updateLCD();
     }
 
     public void testPeriodic() {
