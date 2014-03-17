@@ -1,6 +1,7 @@
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.ADXL345_I2C;
+import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -31,6 +32,8 @@ public class DriveComponent implements RobotComponent {
     private double accelerationY;
     private double accelerationZ;
     ADXL345_I2C.AllAxes accelerations;
+    AnalogChannel ultrasonic = RobotRunner.getUltrasonicSensor();
+        //for now, if ultrasonic sensor returns 7 feet in autonomous, launch with a timer delay to stop (can be anywhere btwn 0 & 2 seconds)
 
     public DriveComponent(Joystick j, JoystickButton jb1, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
         dStick = j;
@@ -47,29 +50,37 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
+        if (ultrasonic.getAverageVoltage() != 12) {
+            try {
+                fljag.setX(0);
+                rljag.setX(0);
+                frjag.setX(0);
+                rrjag.setX(0);
+            } catch (CANTimeoutException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else {
         try {
             fljag.setX(1);
             rljag.setX(1);
             frjag.setX(1);
             rrjag.setX(1);
-            Timer.delay(2);
-            fljag.setX(0);
-            rljag.setX(0);
-            frjag.setX(0);
-            rrjag.setX(0);
         } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
+            
+        }
+            
         }
     }
 
     public void teleopPeriodic() {
-        drive.mecanumDrive_Cartesian(-dStick.getX() * .5,-dStick.getY() * .5, -dStick.getTwist() * .5, RobotRunner.getGyro().getAngle());//Fixing Forward, Backward, and Twisting
+        drive.mecanumDrive_Cartesian(-dStick.getX() * .5, -dStick.getY() * .5, -dStick.getTwist() * .5, RobotRunner.getGyro().getAngle());//Fixing Forward, Backward, and Twisting
         //testDriveServo.set(dStick.getThrottle());
-        if (resetGyroButton.get()){
+        if (resetGyroButton.get()) {
             RobotRunner.getGyro().reset();
         }
         //System.out.println(testDriveServo.get());
-        System.out.println("Gyro Angle ="+RobotRunner.getGyro().getAngle());
+        System.out.println("Gyro Angle =" + RobotRunner.getGyro().getAngle());
     }
 
     public void disabledPeriodic() {
