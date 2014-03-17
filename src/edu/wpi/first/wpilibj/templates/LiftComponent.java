@@ -4,6 +4,7 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
@@ -20,14 +21,17 @@ public class LiftComponent implements RobotComponent {
     private Joystick armStick;
     private JoystickButton resetButton;
     private Victor armVictor;
-    DigitalInput fLimitSwitch;
-    DigitalInput bLimitSwitch;
+    static DigitalInput fLimitSwitch;
+    static DigitalInput bLimitSwitch;
+    private AnalogChannel ultrasonic = RobotRunner.getUltrasonicSensor();
     public static final int NEUTRAL = 1;
     public static final int DEPLOYING = 2;
     public static final int RETRACTING = 3;
     public static final int RESETTING = 4;
     private static int currentState = NEUTRAL;
-
+    static boolean isBLimitOpen;
+        //for now, if ultrasonic sensor returns 7 feet in autonomous, launch with a timer delay to stop (can be anywhere btwn 0 & 2 seconds)
+    
     public LiftComponent(Joystick j, Victor v, DigitalInput s1, DigitalInput s2, JoystickButton b) {
         armStick = j;
         resetButton = b;
@@ -39,7 +43,7 @@ public class LiftComponent implements RobotComponent {
 
     public void autonomousInit() {
         armVictor.set(-1.0); //move to shooting position
-        boolean isBLimitOpen = bLimitSwitch.get();
+        isBLimitOpen = bLimitSwitch.get();
         if (!isBLimitOpen) { //when limitswitch is closed the arm will stop
             armVictor.set(0);
         }
@@ -57,20 +61,23 @@ public class LiftComponent implements RobotComponent {
     public void teleopPeriodic() {
         boolean isForwardLimitSwitchShut = !fLimitSwitch.get();
         boolean isBackwardLimitSwitchShut = !bLimitSwitch.get();
-        printState(isForwardLimitSwitchShut, isBackwardLimitSwitchShut);
+//        printState(isForwardLimitSwitchShut, isBackwardLimitSwitchShut);
         armVictor.set(0.0);
         double armSignal = armStick.getThrottle();
+        currentState=NEUTRAL;
         
-        if (armSignal < -0.1) { // Retracting Backward
-            System.out.println("Moving Arm Backwards");
+        if (armSignal < -0.1) { 
+//            System.out.println("Moving Arm Backwards");
             if (!isBackwardLimitSwitchShut) {
                 armVictor.set(-armSignal);
+                currentState=RETRACTING;
             }
 
-        } else if (armSignal >0.1) { // Retracting backward
-            System.out.println("Moving Arm Forward");
+        } else if (armSignal >0.1) { 
+//            System.out.println("Moving Arm Forward");
             if (!isForwardLimitSwitchShut) {
                 armVictor.set(-armSignal);
+                currentState=DEPLOYING;
             }
         }
     }
@@ -80,7 +87,8 @@ public class LiftComponent implements RobotComponent {
 
     public void disabledPeriodic() {
     }
-    private void printState(boolean a, boolean b){
-        System.out.println("Forward Limit ="+a+"Back Limit ="+b);
+    
+    public int getCurrentState(){
+        return currentState;
     }
 }
