@@ -4,6 +4,7 @@
  */
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
@@ -28,6 +29,7 @@ public class LaunchComponent implements RobotComponent {
     // limit switches and sensor inputs
     private DigitalInput latchLimitSwitch; // channel 3 
     private DigitalInput cockLimitSwitch; //channel 4
+    private AnalogChannel ultrasonic = RobotRunner.getUltrasonicSensor();
     // outputs and actuators
     private Servo latchServo;
     private Victor launcherVictor;
@@ -50,6 +52,7 @@ public class LaunchComponent implements RobotComponent {
     public static final int AUTO_LATCHING = 4;
     public static final int AUTO_COCKING = 5;
     public static final int LAUNCHING = 6;
+    //for now, if ultrasonic sensor returns 7 feet in autonomous, launch with a timer delay to stop (can be anywhere btwn 0 & 2 seconds)
 
     public LaunchComponent(JoystickButton auto,
             JoystickButton latch,
@@ -61,7 +64,7 @@ public class LaunchComponent implements RobotComponent {
             DigitalInput fwdLimit,
             DigitalInput backLimit,
             Servo servo) {
-        automaticButton = auto;
+        automaticButton = auto; 
         latchButton = latch;
         cockButton = cock;
         freezeButton = stop;
@@ -83,8 +86,42 @@ public class LaunchComponent implements RobotComponent {
     }
 
     public void autonomousPeriodic() {
-        // TODO something useful
-        //latchServo.set(armJoytick.getY());
+        switch(currentState) {
+            case NEUTRAL: 
+                launcherVictor.set(0.0);
+                latchServo.set(LATCH_POSITION);
+                break; 
+            case AUTO_LATCHING:
+                    launcherVictor.set(moveToLatch);
+                    latchServo.set(LATCH_POSITION);
+                    if (isLatched) { // latching complete
+                        launcherVictor.set(0.0);
+                        currentState = AUTO_COCKING;
+                        break;
+                    }
+                    break;
+                
+            case AUTO_COCKING:
+                launcherVictor.set(moveToCock);
+                latchServo.set(LATCH_POSITION);
+                    if (isCocked) { // cocking complete
+                        launcherVictor.set(0.0);
+                        currentState = NEUTRAL;
+                        break;
+                    }
+                    break;
+                
+            case LAUNCHING:
+                latchServo.set(UNLATCH_POSITION);
+                launcherVictor.set(0.0);
+                isLatched = false;
+                isCocked = false;
+                if (timer.get() > TIMEOUT_DELAY) {
+                    currentState = NEUTRAL;
+                    }
+                break; 
+        }
+        
     }
 
     public void teleopInit() {
@@ -239,7 +276,7 @@ public class LaunchComponent implements RobotComponent {
     public void disabledInit() {
     }
 
-    public int getState() {
+    public int getCurrentState() {
         return currentState;
     }
 
