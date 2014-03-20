@@ -31,6 +31,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotRunner extends IterativeRobot {
 
+    /**
+     * @return the ultrasonicComp
+     */
     private final boolean testBoard = true; // which JAG IDs to load
     //DRIVE FIELDS BELOW!
     private Joystick driveJoystick;
@@ -116,17 +119,17 @@ public class RobotRunner extends IterativeRobot {
                 rljag = new CANJaguar(11); //Rear Left Wheel Jag
                 frjag = new CANJaguar(12); //Front Right Wheel Jag
                 rrjag = new CANJaguar(7); //Rear Right Wheel Jag
-                System.out.println("Jags Initialized!");
+       //         System.out.println("Jags Initialized!");
             }
             camera = AxisCamera.getInstance();
-            System.out.println(camera.toString());
+    //        System.out.println(camera.toString());
         } catch (CANTimeoutException ex) {
             ex.printStackTrace();
         }
         driveComp = new DriveComponent(driveJoystick, resetGyroButton, fljag, rljag, frjag, rrjag, accel, triggerServo);
         grabComp = new GrabComponent(grabButton, shootButton, passButton, grabVictor, getGrabberLimitSwitch());
         launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, getLauncherForwardLimitSwitch(), getLauncherBackLimitSwitch(), triggerServo);
-        liftComp = new LiftComponent(armJoystick, liftVictor, getLiftForwardLimitSwitch(), getLiftBackLimitSwitch(), grabButton);
+        liftComp = new LiftComponent(armJoystick, liftVictor, forwardLiftLimitSwitch, backwardLiftLimitSwitch);
         ultrasonicComp = new UltrasonicComponent();
         cameraComp = new CameraComponent(camera);
         // Collect 
@@ -199,6 +202,10 @@ public class RobotRunner extends IterativeRobot {
         return grabComp;
     }
 
+    public static UltrasonicComponent getUltrasonicComp() {
+        return ultrasonicComp;
+    }
+
 //    public static CameraComponent getCameraComponent() {
 //        return cameraComp;
 //    }
@@ -251,26 +258,32 @@ public class RobotRunner extends IterativeRobot {
         int liftState = liftComp.getCurrentState();
         SmartDashboard.putBoolean("Lift at Forward Limit", forwardLiftLimitSwitch.get());
         SmartDashboard.putBoolean("Lift at Rear Limit", backwardLiftLimitSwitch.get());
-        SmartDashboard.putBoolean("NEUTRAL_LIFT", liftState==LiftComponent.NEUTRAL);
-        SmartDashboard.putBoolean("DEPLOYING", liftState==LiftComponent.DEPLOYING);
-        SmartDashboard.putBoolean("RETRACTING", liftState==LiftComponent.RETRACTING);
+        SmartDashboard.putBoolean("NEUTRAL_LIFT", liftState == LiftComponent.NEUTRAL);
+        SmartDashboard.putBoolean("DEPLOYING", liftState == LiftComponent.DEPLOYING);
+        SmartDashboard.putBoolean("RETRACTING", liftState == LiftComponent.RETRACTING);
+        SmartDashboard.putBoolean("LIFT READY", liftState == LiftComponent.READY);
         SmartDashboard.putNumber("Launcher Signal", launchVictor.get());
         SmartDashboard.putBoolean("Launcher Forward Limit", forwardLaunchLimitSwitch.get());
         SmartDashboard.putBoolean("Launcher Rear Limit", backwardLaunchLimitSwitch.get());
+        int driveState = driveComp.getCurrentState();
+        SmartDashboard.putBoolean("WAITING", driveState == DriveComponent.WAITING);
+        SmartDashboard.putBoolean("APPROACH", driveState == DriveComponent.APPROACH);
+        SmartDashboard.putBoolean("LAUNCH", driveState == DriveComponent.LAUNCH);
         int launcherState = launchComp.getCurrentState();
-        SmartDashboard.putBoolean("NEUTRAL_LAUNCHER", launcherState==LaunchComponent.NEUTRAL);
-        SmartDashboard.putBoolean("MANUAL_LATCH", launcherState==LaunchComponent.MANUAL_LATCHING);
-        SmartDashboard.putBoolean("MANUAL_COCK", launcherState==LaunchComponent.MANUAL_COCKING);
-        SmartDashboard.putBoolean("AUTO_LATCH", launcherState==LaunchComponent.AUTO_LATCHING);
-        SmartDashboard.putBoolean("AUTO_COCK", launcherState==LaunchComponent.AUTO_COCKING);
-        SmartDashboard.putBoolean("LAUNCHING", launcherState==LaunchComponent.LAUNCHING);
+        SmartDashboard.putBoolean("NEUTRAL_LAUNCHER", launcherState == LaunchComponent.NEUTRAL);
+        SmartDashboard.putBoolean("MANUAL_LATCH", launcherState == LaunchComponent.MANUAL_LATCHING);
+        SmartDashboard.putBoolean("MANUAL_COCK", launcherState == LaunchComponent.MANUAL_COCKING);
+        SmartDashboard.putBoolean("AUTO_LATCH", launcherState == LaunchComponent.AUTO_LATCHING);
+        SmartDashboard.putBoolean("AUTO_COCK", launcherState == LaunchComponent.AUTO_COCKING);
+        SmartDashboard.putBoolean("LAUNCHING", launcherState == LaunchComponent.LAUNCHING);
+        SmartDashboard.putBoolean("LAUNCH READY", launcherState == LaunchComponent.READY);
         SmartDashboard.putBoolean("Grabbing Ball Detector", grabberLimitSwitch.get());
         int grabberState = grabComp.getCurrentState();
-        SmartDashboard.putBoolean("NEUTRAL_GRABBER", grabberState==GrabComponent.NEUTRAL);
-        SmartDashboard.putBoolean("GRABBING", grabberState==GrabComponent.GRABBING);
-        SmartDashboard.putBoolean("PASSING", grabberState==GrabComponent.PASSING);
+        SmartDashboard.putBoolean("NEUTRAL_GRABBER", grabberState == GrabComponent.NEUTRAL);
+        SmartDashboard.putBoolean("GRABBING", grabberState == GrabComponent.GRABBING);
+        SmartDashboard.putBoolean("PASSING", grabberState == GrabComponent.PASSING);
         SmartDashboard.putNumber("Grabber Signal", grabVictor.get());
-        SmartDashboard.putNumber("Range Finder Inches ", ultrasonicComp.getRangeInches());
-        SmartDashboard.putNumber("Range Finder Feet ", ultrasonicComp.getRangeInches() / 12);
+        SmartDashboard.putNumber("Range Finder Inches ", getUltrasonicComp().getRangeInches());
+        SmartDashboard.putNumber("Range Finder Feet ", getUltrasonicComp().getRangeInches() / 12);
     }
 }
