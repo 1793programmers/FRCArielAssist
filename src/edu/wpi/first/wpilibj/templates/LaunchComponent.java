@@ -52,7 +52,7 @@ public class LaunchComponent implements RobotComponent {
     public static final int AUTO_LATCHING = 4;
     public static final int AUTO_COCKING = 5;
     public static final int LAUNCHING = 6;
-    //for now, if ultrasonic sensor returns 7 feet in autonomous, launch with a timer delay to stop (can be anywhere btwn 0 & 2 seconds)
+    public static final int READY = 7;
 
     public LaunchComponent(JoystickButton auto,
             JoystickButton latch,
@@ -64,7 +64,7 @@ public class LaunchComponent implements RobotComponent {
             DigitalInput fwdLimit,
             DigitalInput backLimit,
             Servo servo) {
-        automaticButton = auto; 
+        automaticButton = auto;
         latchButton = latch;
         cockButton = cock;
         freezeButton = stop;
@@ -82,35 +82,30 @@ public class LaunchComponent implements RobotComponent {
     }
 
     public void autonomousInit() {
-        System.out.println("Launch Component initialized for autonomous");
+        //System.out.println("Launch Component initialized for autonomous");
+        currentState = AUTO_COCKING;
     }
 
     public void autonomousPeriodic() {
-        switch(currentState) {
-            case NEUTRAL: 
-                launcherVictor.set(0.0);
-                latchServo.set(LATCH_POSITION);
-                break; 
-            case AUTO_LATCHING:
-                    launcherVictor.set(moveToLatch);
-                    latchServo.set(LATCH_POSITION);
-                    if (isLatched) { // latching complete
-                        launcherVictor.set(0.0);
-                        currentState = AUTO_COCKING;
-                        break;
-                    }
-                    break;
-                
+        isCocked = !cockLimitSwitch.get();
+        switch (currentState) {
             case AUTO_COCKING:
                 launcherVictor.set(moveToCock);
                 latchServo.set(LATCH_POSITION);
-                    if (isCocked) { // cocking complete
-                        launcherVictor.set(0.0);
-                        currentState = NEUTRAL;
-                        break;
-                    }
+                if (isCocked) { // cocking complete
+                    launcherVictor.set(0.0);
+                    currentState = READY;
                     break;
-                
+                }
+                break;
+            case READY:
+                if (DriveComponent.getCurrentState() == DriveComponent.LAUNCH) {
+                    currentState = LAUNCHING;
+                    timer.start();
+                    break;
+                }
+                break;
+
             case LAUNCHING:
                 latchServo.set(UNLATCH_POSITION);
                 launcherVictor.set(0.0);
@@ -118,14 +113,14 @@ public class LaunchComponent implements RobotComponent {
                 isCocked = false;
                 if (timer.get() > TIMEOUT_DELAY) {
                     currentState = NEUTRAL;
-                    }
-                break; 
+                }
+                break;
         }
-        
+
     }
 
     public void teleopInit() {
-        System.out.println("Launch Component initialized for teleop");
+     //   System.out.println("Launch Component initialized for teleop");
         currentState = NEUTRAL;
         isFrozen = false;
         latchServo.set(LATCH_POSITION);
@@ -133,28 +128,28 @@ public class LaunchComponent implements RobotComponent {
 
     public void teleopPeriodic() {
         //printState();
-        System.out.println(latchServo.get());
+    //    System.out.println(latchServo.get());
         if (freezeButton.get()) {
-            System.out.println("Freeze button pressed");
+     //       System.out.println("Freeze button pressed");
             isFrozen = true;
         } else if (thawButton.get()) {
-            System.out.println("Thaw button pressed");
+    //        System.out.println("Thaw button pressed");
             isFrozen = false;
         }
         if (isFrozen) {
-            System.out.println("Launcher Frozen");
+   //         System.out.println("Launcher Frozen");
             launcherVictor.set(0.0);
             latchServo.set(LATCH_POSITION);
         } else {
             // collect sensor information, update latched/cocked
             boolean isLatchLimitSwitchClosed = !latchLimitSwitch.get();
             if (isLatchLimitSwitchClosed) {
-                System.out.println("Launcher now Latched");
+    //            System.out.println("Launcher now Latched");
                 isLatched = true;
             }
             boolean isCockLimitSwitchClosed = !cockLimitSwitch.get();
             if (isCockLimitSwitchClosed) {
-                System.out.println("Launcher now Cocked");
+    //            System.out.println("Launcher now Cocked");
                 isCocked = true;
             } else {
                 isCocked = false;
@@ -178,19 +173,19 @@ public class LaunchComponent implements RobotComponent {
                     }
                     if (latchButton.get()) {
                         isAutomatic = false;
-                        System.out.println("LatchButtonPressed");
+       //                 System.out.println("LatchButtonPressed");
                         if (!isLatchLimitSwitchClosed) {
-                            System.out.println("Moving to Manual Latched State");
+          //                  System.out.println("Moving to Manual Latched State");
                             currentState = MANUAL_LATCHING;
                             break;
                         }
                         break;
                     }
                     if (cockButton.get()) {
-                        System.out.println("CockButtonPressed");
+        //                System.out.println("CockButtonPressed");
                         isAutomatic = false;
                         if (!isCockLimitSwitchClosed) {
-                            System.out.println("Moving to Manual Cock State");
+         //                   System.out.println("Moving to Manual Cock State");
                             currentState = MANUAL_COCKING;
                             break;
                         }
@@ -276,12 +271,16 @@ public class LaunchComponent implements RobotComponent {
     public void disabledInit() {
     }
 
-    public int getCurrentState() {
+    public int getState() {
         return currentState;
     }
 
     private void printState() {
-        System.out.println("Launcher state: " + currentState + " Latched: " + isLatched + " Cocked: " + isCocked + " Frozen: " + isFrozen + " Automatic: " + isAutomatic+"Servo ="+latchServo.get());
+   //     System.out.println("Launcher state: " + currentState + " Latched: " + isLatched + " Cocked: " + isCocked + " Frozen: " + isFrozen + " Automatic: " + isAutomatic + "Servo =" + latchServo.get());
 
+    }
+
+    public static int getCurrentState() {
+        return currentState;
     }
 }
