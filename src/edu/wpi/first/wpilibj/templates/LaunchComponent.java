@@ -101,6 +101,7 @@ public class LaunchComponent implements RobotComponent {
             case READY:
                 if (DriveComponent.getCurrentState() == DriveComponent.LAUNCH) {
                     currentState = LAUNCHING;
+                    timer.reset();
                     timer.start();
                     break;
                 }
