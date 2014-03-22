@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.DriverStationLCD;
@@ -22,9 +29,10 @@ public class CameraComponent implements RobotComponent {
         //setDefaultCommand(new MySpecialCommand());
 
         camera = c;
-        camera.writeMaxFPS(5);
+        camera.writeRotation(AxisCamera.RotationT.k180);
+        camera.writeMaxFPS(30);
         camera.writeResolution(AxisCamera.ResolutionT.k160x120);
-        camera.writeCompression(20);
+        camera.writeCompression(10);
         camera.writeBrightness(0);
        // System.out.println("Camera Activated");
     }
