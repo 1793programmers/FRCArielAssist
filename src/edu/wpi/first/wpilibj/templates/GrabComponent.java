@@ -30,10 +30,12 @@ public class GrabComponent implements RobotComponent {
     public static final int NEUTRAL = 1;
     public static final int GRABBING = 2;
     public static final int PASSING = 3;
+    public static final int READY = 4;
     private static int currentState = NEUTRAL;
     //AUTONOMOUS STATES
     private Timer timer;
-    private static final int TIMEOUT_DELAY = 1;
+    private static final double TIMEOUT_DELAY = 1.0;
+    private static final double READY_DELAY = 1.0;
 
     public GrabComponent(JoystickButton jb1, JoystickButton jb2, JoystickButton jb3, Victor v, DigitalInput g) {
         grabButton = jb1;
@@ -47,12 +49,12 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void autonomousInit() {
-      //  System.out.println("Grab Component initialized for autonomous");
+        //  System.out.println("Grab Component initialized for autonomous");
         currentState = GRABBING;
     }
 
     public void autonomousPeriodic() {
-        boolean ballHeld = grabberLimitSwitch.get();
+        boolean ballHeld = !grabberLimitSwitch.get();
         switch (getCurrentState()) {
             case GRABBING:
                 if (!ballHeld) {
@@ -61,13 +63,24 @@ public class GrabComponent implements RobotComponent {
                     grabberVictor.set(0.0);
                 }
                 if (DriveComponent.getCurrentState() == DriveComponent.LAUNCH) {
+
                     timer.reset();
                     timer.start();
+                    currentState = READY;
+                }
+
+                break;
+
+            case READY:
+                if (timer.get() > READY_DELAY) {
+                    timer.reset();
                     currentState = PASSING;
                 }
+
                 break;
+
             case PASSING:
-             //   System.out.println("GRABBER IS PASSING IN AUTO");
+                //   System.out.println("GRABBER IS PASSING IN AUTO");
                 if (timer.get() > TIMEOUT_DELAY) {
                     grabberVictor.set(0.0);
                     timer.stop();
@@ -80,7 +93,7 @@ public class GrabComponent implements RobotComponent {
     }
 
     public void teleopInit() {
-       // System.out.println("Grab Component initialized for teleop");
+        // System.out.println("Grab Component initialized for teleop");
         currentState = NEUTRAL;
 
     }
@@ -111,7 +124,7 @@ public class GrabComponent implements RobotComponent {
                 if (isReleasePressed || isLaunching) {
                     timer.reset();
                     timer.start();
-                    currentState = PASSING;
+                    currentState = READY;
                 }
                 break;
             case GRABBING:
@@ -126,8 +139,15 @@ public class GrabComponent implements RobotComponent {
                 if (isReleasePressed || isLaunching) {
                     timer.reset();
                     timer.start();
+                    currentState = READY;
+                }
+                break;
+            case READY:
+                if (timer.get() > READY_DELAY) {
+                    timer.reset();
                     currentState = PASSING;
                 }
+
                 break;
             case PASSING:
                 //timer.start();
