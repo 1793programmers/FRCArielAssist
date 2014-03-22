@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Gyro;
+//import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,18 +36,24 @@ public class RobotRunner extends IterativeRobot {
     /**
      * @return the ultrasonicComp
      */
-    private final boolean testBoard = true; // which JAG IDs to load
+    private final boolean testBoard = false; // which JAG IDs to load
     //DRIVE FIELDS BELOW!
     private Joystick driveJoystick;
     private JoystickButton resetGyroButton;
-    private CANJaguar fljag;  //Front Left Wheel Jag
-    private CANJaguar rljag; //Rear Left Wheel Jag
-    private CANJaguar frjag; //Front Right Wheel Jag
-    private CANJaguar rrjag; //Rear Right Wheel Jag
+    private Victor frontLeftMotor;  //Front Left Wheel Jag
+    private Victor rearLeftMotor; //Rear Left Wheel Jag
+    private Victor frontRightMotor; //Front Right Wheel Jag
+    private Victor rearRightMotor; //Rear Right Wheel Jag
+//    private CANJaguar frontLeftMotor;  //Front Left Wheel Jag
+//    private CANJaguar rearLeftMotor; //Rear Left Wheel Jag
+//    private CANJaguar frontRightMotor; //Front Right Wheel Jag
+//    private CANJaguar rearRightMotor; //Rear Right Wheel Jag
     private ADXL345_I2C accel;
     private static Gyro gyro;
     //ARM FIELDS BELOW!
     private Joystick armJoystick;
+    private JoystickButton liftOverrideButton1;
+    private JoystickButton liftOverrideButton2;
     private JoystickButton automaticButton;
     private JoystickButton latchButton;
     private JoystickButton cockButton;
@@ -66,7 +74,7 @@ public class RobotRunner extends IterativeRobot {
     private static DigitalInput grabberLimitSwitch;
     private static AnalogChannel ultrasonicDetector;
     //CAMERA BELOW
-    private AxisCamera camera;
+    //private AxisCamera camera;
     //TIME FOR BUSINESS! COMPONENTS INSTANTIATED BELOW!!
     private static DriveComponent driveComp;
     private static GrabComponent grabComp;
@@ -74,7 +82,8 @@ public class RobotRunner extends IterativeRobot {
     private static LiftComponent liftComp;
     private static UltrasonicComponent ultrasonicComp;
     private static CameraComponent cameraComp;
-    private RobotComponent[] components = new RobotComponent[5];
+    private RobotComponent[] components = new RobotComponent[4];
+   // private RobotComponent[] components = new RobotComponent[5];
 
     /**
      * This function is run when the robot is first started up and should be
@@ -90,6 +99,7 @@ public class RobotRunner extends IterativeRobot {
 
         // arm stick buttons
         armJoystick = new Joystick(2);
+
         automaticButton = new JoystickButton(armJoystick, 11);
         latchButton = new JoystickButton(armJoystick, 5);
         cockButton = new JoystickButton(armJoystick, 7);
@@ -98,46 +108,53 @@ public class RobotRunner extends IterativeRobot {
         shootButton = new JoystickButton(armJoystick, 2);
         grabButton = new JoystickButton(armJoystick, 4);
         passButton = new JoystickButton(armJoystick, 3);
+        liftOverrideButton1 = new JoystickButton(armJoystick, 6);
+        liftOverrideButton2 = new JoystickButton(armJoystick, 8);
         grabVictor = new Victor(1);
         launchVictor = new Victor(2);
         liftVictor = new Victor(3);
-        forwardLiftLimitSwitch = new DigitalInput(6);
+        forwardLiftLimitSwitch = new DigitalInput(12);
         backwardLiftLimitSwitch = new DigitalInput(2);
         forwardLaunchLimitSwitch = new DigitalInput(3);
         backwardLaunchLimitSwitch = new DigitalInput(4);
         grabberLimitSwitch = new DigitalInput(5);
         triggerServo = new Servo(9);
         ultrasonicDetector = new AnalogChannel(7);
-        try {
-            if (testBoard) {
-                fljag = new CANJaguar(2); //Front Left Wheel Jag
-                rljag = new CANJaguar(3); //Rear Left Wheel Jag
-                frjag = new CANJaguar(4); //Front Right Wheel Jag
-                rrjag = new CANJaguar(5); //Rear Right Wheel Jag
-            } else {
-                fljag = new CANJaguar(6); //Front Left Wheel Jag
-                rljag = new CANJaguar(11); //Rear Left Wheel Jag
-                frjag = new CANJaguar(12); //Front Right Wheel Jag
-                rrjag = new CANJaguar(7); //Rear Right Wheel Jag
-       //         System.out.println("Jags Initialized!");
-            }
-            camera = AxisCamera.getInstance();
-    //        System.out.println(camera.toString());
-        } catch (CANTimeoutException ex) {
-            ex.printStackTrace();
-        }
-        driveComp = new DriveComponent(driveJoystick, resetGyroButton, fljag, rljag, frjag, rrjag, accel, triggerServo);
+        frontLeftMotor = new Victor(5);
+        rearLeftMotor = new Victor(4);
+        frontRightMotor = new Victor(6);
+        rearRightMotor = new Victor(7);
+//        try {
+//            if (testBoard) {
+//                frontLeftMotor = new CANJaguar(2); //Front Left Wheel Jag
+//                rearLeftMotor = new CANJaguar(3); //Rear Left Wheel Jag
+//                frontRightMotor = new CANJaguar(4); //Front Right Wheel Jag
+//                rearRightMotor = new CANJaguar(5); //Rear Right Wheel Jag
+//            } else {
+//                frontLeftMotor = new CANJaguar(16); //Front Left Wheel Jag
+//                rearLeftMotor = new CANJaguar(4); //Rear Left Wheel Jag
+//                frontRightMotor = new CANJaguar(2); //Front Right Wheel Jag
+//                rearRightMotor = new CANJaguar(7); //Rear Right Wheel Jag
+//                //rented jag = 12
+//                //         System.out.println("Jags Initialized!");
+//            }
+            //camera = AxisCamera.getInstance();
+            //        System.out.println(camera.toString());
+//        } catch (CANTimeoutException ex) {
+//            ex.printStackTrace();
+//        }
+        driveComp = new DriveComponent(driveJoystick, resetGyroButton, frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
         grabComp = new GrabComponent(grabButton, shootButton, passButton, grabVictor, getGrabberLimitSwitch());
         launchComp = new LaunchComponent(automaticButton, latchButton, cockButton, freezeButton, thawButton, shootButton, launchVictor, getLauncherForwardLimitSwitch(), getLauncherBackLimitSwitch(), triggerServo);
-        liftComp = new LiftComponent(armJoystick, liftVictor, forwardLiftLimitSwitch, backwardLiftLimitSwitch);
+        liftComp = new LiftComponent(armJoystick, liftVictor, forwardLiftLimitSwitch, backwardLiftLimitSwitch, liftOverrideButton1, liftOverrideButton2);
         ultrasonicComp = new UltrasonicComponent();
-        cameraComp = new CameraComponent(camera);
+        //cameraComp = new CameraComponent(camera);
         // Collect 
         components[0] = driveComp;
         components[1] = grabComp;
         components[2] = launchComp;
         components[3] = liftComp;
-        components[4] = cameraComp;
+        //components[4] = cameraComp;
         // updateSmartDashboard();
 
     }
@@ -285,5 +302,6 @@ public class RobotRunner extends IterativeRobot {
         SmartDashboard.putNumber("Grabber Signal", grabVictor.get());
         SmartDashboard.putNumber("Range Finder Inches ", getUltrasonicComp().getRangeInches());
         SmartDashboard.putNumber("Range Finder Feet ", getUltrasonicComp().getRangeInches() / 12);
+        
     }
 }
