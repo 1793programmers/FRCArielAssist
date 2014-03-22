@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
  *
@@ -22,6 +23,8 @@ public class LiftComponent implements RobotComponent {
     // here. Call these from Commands.
     private Joystick armStick;
     //private JoystickButton resetButton;
+    private JoystickButton liftOverrideButton1;
+    private JoystickButton liftOverrideButton2;
     private Victor armVictor;
     static DigitalInput fLimitSwitch;
     static DigitalInput bLimitSwitch;
@@ -35,8 +38,8 @@ public class LiftComponent implements RobotComponent {
     public static final int LAUNCH = 6;
     private static int currentState = NEUTRAL;
     static boolean isBLimitOpen;
-
-    public LiftComponent(Joystick j, Victor v, DigitalInput s1, DigitalInput s2) {
+    
+    public LiftComponent(Joystick j, Victor v, DigitalInput s1, DigitalInput s2, JoystickButton jb1, JoystickButton jb2) {
         armStick = j;
         //resetButton = b;
         armVictor = v;
@@ -45,8 +48,10 @@ public class LiftComponent implements RobotComponent {
         currentState = NEUTRAL;
         isBLimitOpen = bLimitSwitch.get();
         ultrasonic = RobotRunner.getUltrasonicSensor();
+        liftOverrideButton1 = jb1;
+        liftOverrideButton2 = jb2;
     }
-
+    
     public void autonomousInit() {
         armVictor.set(-1.0); //move to shooting position
         //  boolean isBLimitOpen = bLimitSwitch.get();
@@ -56,7 +61,7 @@ public class LiftComponent implements RobotComponent {
         System.out.println("Lift Component initialized for autonomous");
         currentState = DEPLOYING;
     }
-
+    
     public void autonomousPeriodic() {
         boolean isForwardLimitSwitchShut = !fLimitSwitch.get();
         boolean isBackwardLimitSwitchShut = !bLimitSwitch.get();
@@ -86,49 +91,59 @@ public class LiftComponent implements RobotComponent {
                     currentState = LAUNCH;
                 }
                 break;
-
+            
             case LAUNCH:
                 //Nothing, placeholder to check at this time
                 break;
         }
     }
-
+    
     public void teleopInit() {
         //System.out.println("Lift Component initialized for teleop");
         currentState = NEUTRAL;
     }
-
+    
     public void teleopPeriodic() {
         boolean isForwardLimitSwitchShut = !fLimitSwitch.get();
         boolean isBackwardLimitSwitchShut = !bLimitSwitch.get();
-       // printState(isForwardLimitSwitchShut, isBackwardLimitSwitchShut);
+        boolean isOverridden = false;
+        // printState(isForwardLimitSwitchShut, isBackwardLimitSwitchShut);
         armVictor.set(0.0);
-        double armSignal = armStick.getThrottle();
-
-        if (armSignal < -0.1) { // Retracting Backward
-            //System.out.println("Moving Arm Backwards");
-            if (!isBackwardLimitSwitchShut) {
-                armVictor.set(-armSignal);
-            }
-
-        } else if (armSignal > 0.1) { // Retracting backward
-            //System.out.println("Moving Arm Forward");
-            if (!isForwardLimitSwitchShut) {
-                armVictor.set(-armSignal);
+        double armSignal = -armStick.getThrottle(); // +1.0 to deploy
+        System.out.println("Arm sensor is " + armSignal);
+        
+        if (liftOverrideButton1.get() && liftOverrideButton2.get()) {
+            isOverridden = true;
+        }
+        if (isOverridden == true) {
+            armVictor.set(-.25);
+        } else {
+            if (armSignal < -0.1) { // Retracting Backward
+                //System.out.println("Moving Arm Backwards");
+                if (!isBackwardLimitSwitchShut) {
+                    armVictor.set(armSignal);
+                }
+                
+            } else if (armSignal > 0.1) { // Retracting backward
+                //System.out.println("Moving Arm Forward");
+                if (!isForwardLimitSwitchShut) {
+                    armVictor.set(armSignal);
+                }
             }
         }
+        
     }
-
+    
     public void disabledInit() {
     }
-
+    
     public void disabledPeriodic() {
     }
-
+    
     private void printState(boolean a, boolean b) {
-       // System.out.println("Forward Limit =" + a + "Back Limit =" + b);
+        // System.out.println("Forward Limit =" + a + "Back Limit =" + b);
     }
-
+    
     public static int getCurrentState() {
         return currentState;
     }
