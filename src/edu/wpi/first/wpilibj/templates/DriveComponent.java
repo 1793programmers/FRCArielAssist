@@ -1,12 +1,15 @@
 package edu.wpi.first.wpilibj.templates;
 
+import com.sun.squawk.debugger.Log;
 import edu.wpi.first.wpilibj.ADXL345_I2C;
 import edu.wpi.first.wpilibj.AnalogChannel;
-import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.Jaguar;
+//import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 
@@ -24,11 +27,15 @@ public class DriveComponent implements RobotComponent {
     // here. Call these from Commands.
     private RobotDrive drive;
     private Joystick dStick;
+    private Victor frontLeftMotor;  //Front Left Wheel Jag
+    private Victor rearLeftMotor; //Rear Left Wheel Jag
+    private Victor frontRightMotor; //Front Right Wheel Jag
+    private Victor rearRightMotor; //Rear Right Wheel Jag
     private JoystickButton resetGyroButton;
-    private CANJaguar fljag;  //Front Left Wheel Jag
-    private CANJaguar rljag; //Rear Left Wheel Jag
-    private CANJaguar frjag; //Front Right Wheel Jag
-    private CANJaguar rrjag; //Rear Right Wheel Jag
+//    private CANJaguar frontLeftMotor;  //Front Left Wheel Jag
+//    private CANJaguar rearLeftMotor; //Rear Left Wheel Jag
+//    private CANJaguar frontRightMotor; //Front Right Wheel Jag
+//    private CANJaguar rearRightMotor; //Rear Right Wheel Jag
     private ADXL345_I2C accel;
     private Servo testDriveServo;
     private double accelerationX;
@@ -42,117 +49,196 @@ public class DriveComponent implements RobotComponent {
     public static final int LAUNCH = 3;
     public static final int COMPLETE = 4;
     private static int currentState = WAITING;
+    
+    private static double joyXValue;
+    private static double joyYValue;
+    private static double magnitude;
+    private static double direction;
+    
     Timer timer = new Timer();
 
-    public DriveComponent(Joystick j, JoystickButton jb1, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
+    public DriveComponent(Joystick j, JoystickButton jb1, Victor frontLeft, Victor rearLeft, Victor frontRight, Victor rearRight) {
         dStick = j;
         resetGyroButton = jb1;
-        fljag = jag2;
-        rljag = jag3;
-        frjag = jag4;
-        rrjag = jag5;
-        accel = a;
-        drive = new RobotDrive(fljag, rljag, frjag, rrjag);
-        drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
-        drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
-        testDriveServo = s;
+        frontLeftMotor = frontLeft;
+        rearLeftMotor = rearLeft;
+        frontRightMotor = frontRight;
+        rearRightMotor = rearRight;
+        drive = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
     }
+    
+    public double atan2(double y, double x) {
+        double coeff_1 = Math.PI / 4d;
+        double coeff_2 = 3d * coeff_1;
+        double abs_y = Math.abs(y)+ 1e-10f;
+        double r, angle;
+        if (x >= 0d) {
+            r = (x - abs_y) / (x + abs_y);
+            angle = coeff_1;
+        } else {
+            r = (x + abs_y) / (abs_y - x);
+            angle = coeff_2;
+        }
+
+        angle += (0.1963f * r * r - 0.9817f) * r;
+
+        return y < 0.0f ? -angle : angle;
+    }
+    /* public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
+     dStick = j;
+     //resetGyroButton = jb1;
+     frontLeftMotor = jag2;
+     rearLeftMotor = jag3;
+     frontRightMotor = jag4;
+     rearRightMotor = jag5;
+     accel = a;
+     drive = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
+     drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+     drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+     testDriveServo = s;
+     }
+
+     public void autonomousInit() {
+     currentState = WAITING;
+     }
+
+     public void autonomousPeriodic() {
+     switch (getCurrentState()) {
+     case WAITING:
+     try {
+     frontLeftMotor.setX(0);
+     rearLeftMotor.setX(0);
+     frontRightMotor.setX(0);
+     rearRightMotor.setX(0);
+     } catch (CANTimeoutException ex) {
+     ex.printStackTrace();
+     }
+     if (LaunchComponent.getCurrentState() == 7
+     && LiftComponent.getCurrentState() == 5) {
+     currentState = APPROACH;
+     }
+     break;
+     case APPROACH:
+     if (RobotRunner.getUltrasonicComp().getRangeInches() < 72) {
+     timer.reset();
+     timer.start();
+     currentState = LAUNCH;
+     }
+     try {
+     frontLeftMotor.setX(1.0);
+     rearLeftMotor.setX(1.0);
+     frontRightMotor.setX(-1.0);
+     rearRightMotor.setX(-1.0);
+     } catch (CANTimeoutException ex) {
+     ex.printStackTrace();
+     }
+     break;
+
+     case LAUNCH:
+     if (timer.get() < 1) {
+     try {
+     frontLeftMotor.setX(1.0);
+     rearLeftMotor.setX(1.0);
+     frontRightMotor.setX(-1.0);
+     rearRightMotor.setX(-1.0);
+     } catch (CANTimeoutException ex) {
+     ex.printStackTrace();
+     }
+     } else {
+     try {
+     frontLeftMotor.setX(0);
+     rearLeftMotor.setX(0);
+     frontRightMotor.setX(0);
+     rearRightMotor.setX(0);
+     } catch (CANTimeoutException ex) {
+     ex.printStackTrace();
+     }
+     currentState = COMPLETE;
+     }
+     break;
+     case COMPLETE:
+     try {
+     frontLeftMotor.setX(0);
+     rearLeftMotor.setX(0);
+     frontRightMotor.setX(0);
+     rearRightMotor.setX(0);
+     } catch (CANTimeoutException ex) {
+     ex.printStackTrace();
+     }
+     break;
+     }
+
+     /*if (ultrasonic.getAverageVoltage() != 12) {
+     try {
+     frontLeftMotor.setX(0);
+     rearLeftMotor.setX(0);
+     frontRightMotor.setX(0);
+     rearRightMotor.setX(0);
+     } catch (CANTimeoutException ex) {
+     ex.printStackTrace();
+     }
+     }
+     else {
+     try {
+     frontLeftMotor.setX(1);
+     rearLeftMotor.setX(1);
+     frontRightMotor.setX(1);
+     rearRightMotor.setX(1);
+     } catch (CANTimeoutException ex) {
+            
+     }
+            
+     }*/
 
     public void autonomousInit() {
-        currentState = WAITING;
+        //   throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void autonomousPeriodic() {
-        switch (getCurrentState()) {
-            case WAITING:
-                try {
-                    fljag.setX(0);
-                    rljag.setX(0);
-                    frjag.setX(0);
-                    rrjag.setX(0);
-                } catch (CANTimeoutException ex) {
-                    ex.printStackTrace();
-                }
-                if (LaunchComponent.getCurrentState() == 7
-                        && LiftComponent.getCurrentState() == 5) {
-                    currentState = APPROACH;
-                }
-                break;
-            case APPROACH:
-                if (RobotRunner.getUltrasonicComp().getRangeInches() < 84) {
-                    timer.reset();
-                    timer.start();
-                    currentState = LAUNCH;
-                }
-                try {
-                    fljag.setX(1.0);
-                    rljag.setX(1.0);
-                    frjag.setX(-1.0);
-                    rrjag.setX(-1.0);
-                } catch (CANTimeoutException ex) {
-                    ex.printStackTrace();
-                }
-                break;
+        //   throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
-            case LAUNCH:
-                if (timer.get() < 1) {
-                    try {
-                        fljag.setX(1.0);
-                        rljag.setX(1.0);
-                        frjag.setX(-1.0);
-                        rrjag.setX(-1.0);
-                    } catch (CANTimeoutException ex) {
-                        ex.printStackTrace();
-                    }
-                } else {
-                    try {
-                        fljag.setX(0);
-                        rljag.setX(0);
-                        frjag.setX(0);
-                        rrjag.setX(0);
-                    } catch (CANTimeoutException ex) {
-                        ex.printStackTrace();
-                    }
-                    currentState = COMPLETE;
-                }
-                break;
-            case COMPLETE:
-                try {
-                    fljag.setX(0);
-                    rljag.setX(0);
-                    frjag.setX(0);
-                    rrjag.setX(0);
-                } catch (CANTimeoutException ex) {
-                    ex.printStackTrace();
-                }
-                break;
-        }
+    public void disabledInit() {
+        //  throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
-        /*if (ultrasonic.getAverageVoltage() != 12) {
-         try {
-         fljag.setX(0);
-         rljag.setX(0);
-         frjag.setX(0);
-         rrjag.setX(0);
-         } catch (CANTimeoutException ex) {
-         ex.printStackTrace();
-         }
-         }
-         else {
-         try {
-         fljag.setX(1);
-         rljag.setX(1);
-         frjag.setX(1);
-         rrjag.setX(1);
-         } catch (CANTimeoutException ex) {
-            
-         }
-            
-         }*/
+    public void disabledPeriodic() {
+        //   throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void teleopInit() {
+        
+//        
+//     try {
+//            rearLeftMotor.setX(0);
+//            frontLeftMotor.setX(0);
+//            frontRightMotor.setX(0);
+//            rearRightMotor.setX(0);
+//        } catch (CANTimeoutException ex) {
+//            ex.printStackTrace();
+//        }
+        //System.out.println("Drive Component initialized for teleop");
+
     }
 
     public void teleopPeriodic() {
-        drive.mecanumDrive_Cartesian(-dStick.getX() * .5, -dStick.getY() * .5, -dStick.getTwist() * .5, RobotRunner.getGyro().getAngle());//Fixing Forward, Backward, and Twisting
+        joyXValue = dStick.getX();
+        joyYValue = -dStick.getY();
+        magnitude = Math.sqrt(joyXValue*joyXValue + joyYValue*joyYValue);
+        direction = atan2(joyYValue, joyXValue);
+        drive.mecanumDrive_Polar(magnitude, direction, dStick.getTwist());
+//      drive.mecanumDrive_Cartesian(joyXValue, joyYValue, dStick.getTwist(), RobotRunner.getGyro().getAngle());
+        // for calibration
+        //frontLeftMotor.set(dStick.getX());
+        //frontRightMotor.set(dStick.getX());
+        //rearLeftMotor.set(dStick.getX());
+        //rearRightMotor.set(dStick.getX());
+//        try {
+//            rearRightMotor.setX(dStick.getThrottle());
+//        } catch (CANTimeoutException ex) {
+//            ex.printStackTrace();
+//        }
+        //Fixing Forward, Backward, and Twisting
         //testDriveServo.set(dStick.getThrottle());
         if (resetGyroButton.get()) {
             RobotRunner.getGyro().reset();
@@ -161,19 +247,8 @@ public class DriveComponent implements RobotComponent {
         //System.out.println("Gyro Angle =" + RobotRunner.getGyro().getAngle());
     }
 
-    public void disabledPeriodic() {
-    }
-
-//    @Override
-    public void disabledInit() {
-    }
-
-//    @Override
-    public void teleopInit() {
-        //System.out.println("Drive Component initialized for teleop");
-    }
-
     public static int getCurrentState() {
         return currentState;
     }
+    
 }
