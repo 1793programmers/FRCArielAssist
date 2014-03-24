@@ -26,12 +26,15 @@ public class DriveComponent implements RobotComponent {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     private RobotDrive drive;
+   
     private Joystick dStick;
-    private Victor frontLeftMotor;  //Front Left Wheel Jag
-    private Victor rearLeftMotor; //Rear Left Wheel Jag
-    private Victor frontRightMotor; //Front Right Wheel Jag
-    private Victor rearRightMotor; //Rear Right Wheel Jag
     private JoystickButton resetGyroButton;
+    //FOR VICTOR MOTOR CONTROLLER SETUP
+    private Victor frontLeftMotor;  //Front Left Wheel Victor
+    private Victor rearLeftMotor; //Rear Left Wheel Victor
+    private Victor frontRightMotor; //Front Right Wheel Victor
+    private Victor rearRightMotor; //Rear Right Wheel Victor
+    //FOR CANJAGUAR MOTOR CONTROLLER SETUP
 //    private CANJaguar frontLeftMotor;  //Front Left Wheel Jag
 //    private CANJaguar rearLeftMotor; //Rear Left Wheel Jag
 //    private CANJaguar frontRightMotor; //Front Right Wheel Jag
@@ -49,7 +52,7 @@ public class DriveComponent implements RobotComponent {
     public static final int LAUNCH = 3;
     public static final int COMPLETE = 4;
     private static int currentState = WAITING;
-    
+    //FOR TELEOP MECANUM POLAR DRIVE
     private static double joyXValue;
     private static double joyYValue;
     private static double magnitude;
@@ -84,6 +87,8 @@ public class DriveComponent implements RobotComponent {
 
         return y < 0.0f ? -angle : angle;
     }
+    //BELOW IS CODE FOR THE CANJAGS
+    
     /* public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
      dStick = j;
      //resetGyroButton = jb1;
