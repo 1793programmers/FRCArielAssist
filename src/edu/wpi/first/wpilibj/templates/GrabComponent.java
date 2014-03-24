@@ -21,9 +21,9 @@ public class GrabComponent implements RobotComponent {
     /**
      * @return the currentState
      */
-    private JoystickButton grabButton; // button
-    private JoystickButton shootButton;
-    private JoystickButton passButton; //button 
+    private JoystickButton grabButton; // button 4
+    private JoystickButton shootButton; // button 2
+    private JoystickButton passButton; //button 3
     private Victor grabberVictor;
     private DigitalInput grabberLimitSwitch;
     private AnalogChannel ultrasonic = RobotRunner.getUltrasonicSensor();
