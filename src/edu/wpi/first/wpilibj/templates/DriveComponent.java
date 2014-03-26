@@ -26,15 +26,12 @@ public class DriveComponent implements RobotComponent {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     private RobotDrive drive;
-   
     private Joystick dStick;
+    private Victor frontLeftMotor;  //Front Left Wheel Jag
+    private Victor rearLeftMotor; //Rear Left Wheel Jag
+    private Victor frontRightMotor; //Front Right Wheel Jag
+    private Victor rearRightMotor; //Rear Right Wheel Jag
     private JoystickButton resetGyroButton;
-    //FOR VICTOR MOTOR CONTROLLER SETUP
-    private Victor frontLeftMotor;  //Front Left Wheel Victor
-    private Victor rearLeftMotor; //Rear Left Wheel Victor
-    private Victor frontRightMotor; //Front Right Wheel Victor
-    private Victor rearRightMotor; //Rear Right Wheel Victor
-    //FOR CANJAGUAR MOTOR CONTROLLER SETUP
 //    private CANJaguar frontLeftMotor;  //Front Left Wheel Jag
 //    private CANJaguar rearLeftMotor; //Rear Left Wheel Jag
 //    private CANJaguar frontRightMotor; //Front Right Wheel Jag
@@ -52,12 +49,10 @@ public class DriveComponent implements RobotComponent {
     public static final int LAUNCH = 3;
     public static final int COMPLETE = 4;
     private static int currentState = WAITING;
-    //FOR TELEOP MECANUM POLAR DRIVE
     private static double joyXValue;
     private static double joyYValue;
     private static double magnitude;
     private static double direction;
-    
     Timer timer = new Timer();
 
     public DriveComponent(Joystick j, JoystickButton jb1, Victor frontLeft, Victor rearLeft, Victor frontRight, Victor rearRight) {
@@ -69,11 +64,11 @@ public class DriveComponent implements RobotComponent {
         rearRightMotor = rearRight;
         drive = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
     }
-    
+
     public double atan2(double y, double x) {
         double coeff_1 = Math.PI / 4d;
         double coeff_2 = 3d * coeff_1;
-        double abs_y = Math.abs(y)+ 1e-10f;
+        double abs_y = Math.abs(y) + 1e-10f;
         double r, angle;
         if (x >= 0d) {
             r = (x - abs_y) / (x + abs_y);
@@ -85,10 +80,8 @@ public class DriveComponent implements RobotComponent {
 
         angle += (0.1963f * r * r - 0.9817f) * r;
 
-        return y < 0.0f ? -angle : angle;
+        return y < 0.0f ? Math.toDegrees(-angle)-90 : Math.toDegrees(angle)-90.0;
     }
-    //BELOW IS CODE FOR THE CANJAGS
-    
     /* public DriveComponent(Joystick j, CANJaguar jag2, CANJaguar jag3, CANJaguar jag4, CANJaguar jag5, ADXL345_I2C a, Servo s) {
      dStick = j;
      //resetGyroButton = jb1;
@@ -101,79 +94,58 @@ public class DriveComponent implements RobotComponent {
      drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
      drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
      testDriveServo = s;
-     }
+     }*/
 
-     public void autonomousInit() {
-     currentState = WAITING;
-     }
+    public void autonomousInit() {
+        currentState = WAITING;
+    }
 
-     public void autonomousPeriodic() {
-     switch (getCurrentState()) {
-     case WAITING:
-     try {
-     frontLeftMotor.setX(0);
-     rearLeftMotor.setX(0);
-     frontRightMotor.setX(0);
-     rearRightMotor.setX(0);
-     } catch (CANTimeoutException ex) {
-     ex.printStackTrace();
-     }
-     if (LaunchComponent.getCurrentState() == 7
-     && LiftComponent.getCurrentState() == 5) {
-     currentState = APPROACH;
-     }
-     break;
-     case APPROACH:
-     if (RobotRunner.getUltrasonicComp().getRangeInches() < 72) {
-     timer.reset();
-     timer.start();
-     currentState = LAUNCH;
-     }
-     try {
-     frontLeftMotor.setX(1.0);
-     rearLeftMotor.setX(1.0);
-     frontRightMotor.setX(-1.0);
-     rearRightMotor.setX(-1.0);
-     } catch (CANTimeoutException ex) {
-     ex.printStackTrace();
-     }
-     break;
+    public void autonomousPeriodic() {
+        switch (getCurrentState()) {
+            case WAITING:
 
-     case LAUNCH:
-     if (timer.get() < 1) {
-     try {
-     frontLeftMotor.setX(1.0);
-     rearLeftMotor.setX(1.0);
-     frontRightMotor.setX(-1.0);
-     rearRightMotor.setX(-1.0);
-     } catch (CANTimeoutException ex) {
-     ex.printStackTrace();
-     }
-     } else {
-     try {
-     frontLeftMotor.setX(0);
-     rearLeftMotor.setX(0);
-     frontRightMotor.setX(0);
-     rearRightMotor.setX(0);
-     } catch (CANTimeoutException ex) {
-     ex.printStackTrace();
-     }
-     currentState = COMPLETE;
-     }
-     break;
-     case COMPLETE:
-     try {
-     frontLeftMotor.setX(0);
-     rearLeftMotor.setX(0);
-     frontRightMotor.setX(0);
-     rearRightMotor.setX(0);
-     } catch (CANTimeoutException ex) {
-     ex.printStackTrace();
-     }
-     break;
-     }
+                drive.mecanumDrive_Polar(0, 0, 0);
 
-     /*if (ultrasonic.getAverageVoltage() != 12) {
+                if (LaunchComponent.getCurrentState() == 7
+                        && LiftComponent.getCurrentState() == 5) {
+                    currentState = APPROACH;
+                }
+                break;
+            case APPROACH:
+                magnitude = 1;
+                direction = atan2(1,0);
+                //System.out.println("Arc Tan 2 "+);
+                if (RobotRunner.getUltrasonicComp().getRangeInches() < 72) {
+                    timer.reset();
+                    timer.start();
+                    currentState = LAUNCH;
+                }
+                drive.mecanumDrive_Polar(magnitude, direction, 0.0);
+//                frontLeftMotor.set(1.0);
+//                rearLeftMotor.set(1.0);
+//                frontRightMotor.set(-1.0);
+//                rearRightMotor.set(-1.0);
+                break;
+
+
+
+            case LAUNCH:
+                if (timer.get() < 1) {
+                      drive.mecanumDrive_Polar(1, 1, 0.0);
+                } else {
+                      drive.mecanumDrive_Polar(0, 0, 0);
+                    currentState = COMPLETE;
+                }
+                break;
+            case COMPLETE:
+
+                drive.mecanumDrive_Polar(0, 0, 0);
+
+
+                break;
+        }
+    }
+    /*if (ultrasonic.getAverageVoltage() != 12) {
      try {
      frontLeftMotor.setX(0);
      rearLeftMotor.setX(0);
@@ -195,14 +167,6 @@ public class DriveComponent implements RobotComponent {
             
      }*/
 
-    public void autonomousInit() {
-        //   throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public void autonomousPeriodic() {
-        //   throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public void disabledInit() {
         //  throw new java.lang.UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -212,7 +176,6 @@ public class DriveComponent implements RobotComponent {
     }
 
     public void teleopInit() {
-        
 //        
 //     try {
 //            rearLeftMotor.setX(0);
@@ -223,14 +186,13 @@ public class DriveComponent implements RobotComponent {
 //            ex.printStackTrace();
 //        }
         //System.out.println("Drive Component initialized for teleop");
-
     }
 
     public void teleopPeriodic() {
         joyXValue = dStick.getX();
         joyYValue = -dStick.getY();
-        magnitude = Math.sqrt(joyXValue*joyXValue + joyYValue*joyYValue);
-        direction = atan2(joyYValue, joyXValue);
+        magnitude = Math.sqrt(joyXValue * joyXValue + joyYValue * joyYValue);
+        direction = atan2(joyYValue, -joyXValue);
         drive.mecanumDrive_Polar(magnitude, direction, dStick.getTwist());
 //      drive.mecanumDrive_Cartesian(joyXValue, joyYValue, dStick.getTwist(), RobotRunner.getGyro().getAngle());
         // for calibration
@@ -255,5 +217,4 @@ public class DriveComponent implements RobotComponent {
     public static int getCurrentState() {
         return currentState;
     }
-    
 }
