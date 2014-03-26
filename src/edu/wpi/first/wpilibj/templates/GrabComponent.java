@@ -21,9 +21,9 @@ public class GrabComponent implements RobotComponent {
     /**
      * @return the currentState
      */
-    private JoystickButton grabButton; // button 4
-    private JoystickButton shootButton; // button 2
-    private JoystickButton passButton; //button 3
+    private JoystickButton grabButton; // button
+    private JoystickButton shootButton;
+    private JoystickButton passButton; //button 
     private Victor grabberVictor;
     private DigitalInput grabberLimitSwitch;
     private AnalogChannel ultrasonic = RobotRunner.getUltrasonicSensor();
@@ -35,7 +35,7 @@ public class GrabComponent implements RobotComponent {
     //AUTONOMOUS STATES
     private Timer timer;
     private static final double TIMEOUT_DELAY = 1.0;
-    private static final double READY_DELAY = 1.0;
+    private static final double READY_DELAY = 0.5;
 
     public GrabComponent(JoystickButton jb1, JoystickButton jb2, JoystickButton jb3, Victor v, DigitalInput g) {
         grabButton = jb1;
