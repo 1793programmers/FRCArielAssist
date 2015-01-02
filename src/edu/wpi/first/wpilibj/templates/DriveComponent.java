@@ -27,10 +27,10 @@ public class DriveComponent implements RobotComponent {
     // here. Call these from Commands.
     private RobotDrive drive;
     private Joystick dStick;
-    private Victor frontLeftMotor;  //Front Left Wheel Jag
-    private Victor rearLeftMotor; //Rear Left Wheel Jag
-    private Victor frontRightMotor; //Front Right Wheel Jag
-    private Victor rearRightMotor; //Rear Right Wheel Jag
+    private Victor frontLeftMotor;  //Front Left Wheel Victor
+    private Victor rearLeftMotor; //Rear Left Wheel Victor
+    private Victor frontRightMotor; //Front Right Wheel Victor
+    private Victor rearRightMotor; //Rear Right Wheel Victor
     private JoystickButton resetGyroButton;
 //    private CANJaguar frontLeftMotor;  //Front Left Wheel Jag
 //    private CANJaguar rearLeftMotor; //Rear Left Wheel Jag
